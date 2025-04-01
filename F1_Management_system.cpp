@@ -1,5 +1,4 @@
-// Fully working refactored program with all logic implemented using classes and inheritance
-// Version 2.0
+// Version 3.0
 
 #include <iostream>
 #include <fstream>
@@ -266,40 +265,13 @@ public:
 
 
 
-// Display menu ********** Delete
-// void displayMenu() {
-
-//     cout << R"(
-//         _________   __  ___                                             __ 
-//        / ____<  /  /  |/  /___ _____  ____ _____ _____ ___  ___  ____  / /_
-//       / /_   / /  / /|_/ / __ `/ __ \/ __ `/ __ `/ __ `__ \/ _ \/ __ \/ __/
-//      / __/  / /  / /  / / /_/ / / / / /_/ / /_/ / / / / / /  __/ / / / /_  
-//     /_/____/_/  /_/  /_/\__,_/_/ /_/\__,_/\__, /_/ /_/ /_/\___/_/ /_/\__/  
-//       / ___/__  _______/ /____  ____ ___ /____/                            
-//       \__ \/ / / / ___/ __/ _ \/ __ `__ \                                  
-//      ___/ / /_/ (__  ) /_/  __/ / / / / /                                  
-//     /____/\__, /____/\__/\___/_/ /_/ /_/                                   
-//          /____/                                                             
-//         )" << '\n';
-
-//     cout << "\nMenu:\n";
-//     cout << "1. Add Race\n";
-//     cout << "2. Register Driver\n";
-//     cout << "3. Display Lap Times\n";
-//     cout << "4. Show Leaderboard\n";
-//     cout << "5. Show Sample Driver and Engineer\n";
-//     cout << "6. Exit\n";
-//     cout << "Enter your choice: ";
-// }
-
-
 
 void personnelManagement(){
-    cout << "Personnel Management selected" << endl;
 
     int choice;
     do{
         displayBanner();
+        cout << "===== Personnel Management Menu =====\n" << endl;
         cout << " 1. Register New Driver " << endl;
         cout << " 2. View All Drivers  " << endl;
         cout << " 3. Search Driver by Name " << endl;
@@ -340,40 +312,161 @@ void personnelManagement(){
 }
 
 void raceManagement(){
-    displayBanner();
-    cout << "Race Management selected" << endl;
+
+    int choice;
+    do{
+        displayBanner();
+        cout << "==== Race Management Menu ==== \n" << endl;
+        cout << " 1. Schedule New Race " << endl;
+        cout << " 2. View Schdule Races (Queue) " << endl;
+        cout << " 3. Enter race results " << endl;
+        cout << " 4. View Race Results " << endl;
+        cout << " 5. Delete Past Race From Queue " << endl;
+        cout << " 6. Return to Main Menu " << endl;
+        cin >> choice;
+
+        switch(choice){
+            case 1:
+                cout << "==== Schedule New Race ====" << endl;
+                break;
+            case 2:
+                cout << "==== View Race Results ====" << endl;
+                break;
+            case 3:
+                cout << "==== Enter Race Results ====" << endl;
+                break;
+            case 4:
+                cout << "==== View Race Results ====" << endl;
+                break;
+            case 5:
+                cout << "==== Delete Past Race From Queue ====" << endl;
+                break;
+            case 6:
+                cout << "Returning to Main Menu...." << endl;
+                break;
+            default:
+                cout << "Invalid option selected. Please choose an option between 1 and 6." << endl;
+        }
+    } while(choice != 6);
 }
 
 void teamManagement(){
-    displayBanner();
-    cout << "Team Management selected" << endl;
+    int choice;
+    do{
+        displayBanner();
+        cout << "==== Team Management Menu ==== \n" << endl;
+        cout << " 1. Create New Team " << endl;
+        cout << " 2. View All Teams " << endl;
+        cout << " 3. Assign Driver to Team " << endl;
+        cout << " 4. Search Team by Name " << endl;
+        cout << " 5. Return to Main Menu " << endl;
+        cin >> choice;
+
+        switch(choice){
+            case 1:
+                cout << "==== Create New Team ====" << endl;
+                break;
+            case 2:
+                cout << "==== View All Teams ====" << endl;
+                break;
+            case 3:
+                cout << "==== Assign Driver to Team ====" << endl;
+                break;
+            case 4:
+                cout << "==== Search Team by Name ====" << endl;
+                break;
+            case 5:
+                cout << "Returning to Main Menu...." << endl;
+                break;
+            default:
+                cout << "Invalid option selected. Please choose an option between 1 and 5." << endl;
+        }
+    } while(choice != 5);
 }
 
 void vehicleManagement(){
-    displayBanner();
-    cout << "Vehicle Management selected" << endl;
+    int choice;
+    do{
+        displayBanner();
+        cout << "==== Vehicle Management Menu ==== \n" << endl;
+        cout << " 1. Add New Vehicle " << endl;
+        cout << " 2. View All Vehicles " << endl;
+        cout << " 3. Assign Vehicle to Driver " << endl;
+        cout << " 4. Search Vehichle by Make or Driver " << endl;
+        cout << " 5. Return to Main Menu " << endl;
+        cin >> choice;
+
+        switch(choice){
+            case 1:
+                cout << "==== Add New Vehicle ====" << endl;
+                break;
+            case 2:
+                cout << "==== View All Vehicles ====" << endl;
+                break;
+            case 3:
+                cout << "==== Assign Vehicle to Driver ====" << endl;
+                break;
+            case 4:
+                cout << "==== Search Vehichle by Make or Driver ====" << endl;
+                break;
+            case 5:
+                cout << "Returning to Main Menu...." << endl;
+                break;
+            default:
+                cout << "Invalid option selected. Please choose an option between 1 and 5." << endl;
+        }
+    } while(choice != 5);
 }
 
 void performanceStats(){
-    displayBanner();
-    cout << "Performance Management selected" << endl;
+    int choice;
+    do{
+        displayBanner();
+        cout << "==== Performance Statistics Menu ==== \n" << endl;
+        cout << " 1. View Lap Times (Reverse Order) " << endl;
+        cout << " 2. View Leaderboard " << endl;
+        cout << " 3. View Driver Performance Stats " << endl;
+        cout << " 4. Compare Driver Stats " << endl;
+        cout << " 5. Return to Main Menu " << endl;
+        cin >> choice;
+
+        switch(choice){
+            case 1:
+                cout << "==== View Lap Times (Reverse Order)e ====" << endl;
+                break;
+            case 2:
+                cout << "==== View Leaderboard ====" << endl;
+                break;
+            case 3:
+                cout << "==== View Driver Performance Stats ====" << endl;
+                break;
+            case 4:
+                cout << "==== Compare Driver Stats ====" << endl;
+                break;
+            case 5:
+                cout << "Returning to Main Menu...." << endl;
+                break;
+            default:
+                cout << "Invalid option selected. Please choose an option between 1 and 5." << endl;
+        }
+    } while(choice != 5);
 }
-
-
 
 
 
 void mainMenu(){
-    displayBanner();
+
+    
     int choice;
     do{
-        cout << "Main Menu" << endl;
-        cout << "1. Personnel Management" << endl; 
-        cout << "2. Race Management" << endl;                       
-        cout << "3. Team Management" << endl;                       
-        cout << "4. Vehicle Management" << endl;                     
-        cout << "5. Performance & Stats" << endl;                                
-        cout << "6. Exit" << endl;
+        displayBanner();
+        cout << "====== Main Menu ========\n" << endl;
+        cout << " 1. Personnel Management" << endl; 
+        cout << " 2. Race Management" << endl;                       
+        cout << " 3. Team Management" << endl;                       
+        cout << " 4. Vehicle Management" << endl;                     
+        cout << " 5. Performance & Stats" << endl;                                
+        cout << " 6. Exit" << endl;
         cout << "Enter an option: ";
         cin >> choice;
 
