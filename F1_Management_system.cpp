@@ -1,10 +1,35 @@
 // Fully working refactored program with all logic implemented using classes and inheritance
+// Version 2.0
 
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <queue>
 using namespace std;
+
+void displayBanner(){
+    system("CLS");
+    cout << R"(
+        _________   __  ___                                             __ 
+       / ____<  /  /  |/  /___ _____  ____ _____ _____ ___  ___  ____  / /_
+      / /_   / /  / /|_/ / __ `/ __ \/ __ `/ __ `/ __ `__ \/ _ \/ __ \/ __/
+     / __/  / /  / /  / / /_/ / / / / /_/ / /_/ / / / / / /  __/ / / / /_  
+    /_/____/_/  /_/  /_/\__,_/_/ /_/\__,_/\__, /_/ /_/ /_/\___/_/ /_/\__/  
+      / ___/__  _______/ /____  ____ ___ /____/                            
+      \__ \/ / / / ___/ __/ _ \/ __ `__ \                                  
+     ___/ / /_/ (__  ) /_/  __/ / / / / /                                  
+    /____/\__, /____/\__/\___/_/ /_/ /_/                                   
+         /____/                                                             
+        )" << '\n';
+}
+
+void pauseAndClear(){
+    cout << "\nPress Enter to return to the menu...";
+    cin.ignore();
+    cin.get();
+    system("CLS");
+
+}
 
 // ******* Date class for composition (To be expanded if needed) ****************************
 class Date {
@@ -175,17 +200,226 @@ public:
     RaceNode(Race r) : data(r), next(nullptr) {}
 };
 
-// Display menu
-void displayMenu() {
-    cout << "\nMenu:\n";
-    cout << "1. Add Race\n";
-    cout << "2. Register Driver\n";
-    cout << "3. Display Lap Times\n";
-    cout << "4. Show Leaderboard\n";
-    cout << "5. Show Sample Driver and Engineer\n";
-    cout << "6. Exit\n";
-    cout << "Enter your choice: ";
+
+// --- ADMIN MAIN MENU ---
+// 1. Personnel Management                   // Inheritance and polymorphism, Abstract base classes, Basic class design, Basic association
+// 2. Race Management                        // Queue (linked list), Composition, Dependency
+// 3. Team Management                        // Basic association, Qualified association, Association class
+// 4. Vehicle Management                     // Basic class design, Composition, Association class, Qualified association
+// 5. Performance & Stats                    // Operator overloading (member and non-member), Polymorphism, Basic class
+// 6. System Info & Sample Data              // Abstract base/concrete classes, Integration testing, Best code/novel solution
+// 7. Exit                                   
+
+
+
+// // --- PERSONNEL MANAGEMENT ---
+// 1. Register New Driver                    // Basic class with constructors and accessors, Inheritance from abstract base class
+// 2. View All Drivers                       // Polymorphism (viewing drivers through base class pointer/reference)
+// 3. Search Driver by Name                  // Accessor methods, Basic string comparison
+// 4. Register New Engineer                  // Basic class, Abstract base + inheritance (Engineer derived from Person)
+// 5. View All Engineers                     // Polymorphism example (viewing multiple concrete derived types)
+// 6. Search Engineer by Team                // Basic association (Engineer → Team)
+// 7. Return to Main Menu                    // 
+
+
+// // --- RACE MANAGEMENT ---
+// 1. Schedule New Race                      // Composition (using a Date object), Basic class with constructors
+// 2. View Scheduled Races (Queue)           // Queue implemented via linked list
+// 3. Enter Race Results                     // Composition (LapTime inside Race), Dependency (Race → Results)
+// 4. View Race Results                      // Shows dependent relationship (Race object affects Leaderboard/Stats)
+// 5. Delete Past Race from Queue            // Linked list manipulation (Queue)
+// 6. Return to Main Menu                    // 
+
+
+// // --- TEAM MANAGEMENT ---
+// 1. Create New Team                        // Basic class, Association with Drivers and Engineers
+// 2. View All Teams                         // Association relationships displayed
+// 3. Assign Driver to Team                  // Basic association (Team ↔ Driver)
+// 4. Assign Engineer to Team                // Basic association (Team ↔ Engineer)
+// 5. Search Team by Name                    // Qualified association (using team name as qualifier)
+// 6. Return to Main Menu                    // 
+
+
+// // --- VEHICLE MANAGEMENT --- (maybe add a base class here for a F1 car and a test car for inheritance)
+// 1. Add New Vehicle                        // Basic class with accessors and constructors, Composition (engine specs)
+// 2. View All Vehicles                      // Association class if vehicle is linked to driver
+// 3. Assign Vehicle to Driver               // Association class (Vehicle ↔ Driver), Composition
+// 4. Search Vehicle by Make or Driver       // Qualified association (search by attribute like make or driver name)
+// 5. Return to Main Menu                    // 
+
+
+// // --- PERFORMANCE & STATS ---
+// 1. View Lap Times (Reverse Order)         // Composition (LapTime), Recursive display, Optional sorting logic
+// 2. View Leaderboard                       // Basic class, Operator overloading (non-member, for comparisons or sorting)
+// 3. View Driver Performance Stats          // Operator overloading (as member function, e.g., compare two stats)
+// 4. Compare Driver Stats                   // Polymorphism (different behavior for different driver objects), Overloading
+// 5. Return to Main Menu                    // 
+
+
+// // --- SYSTEM INFO & SAMPLE DATA ---       // **Might not use this**
+// 1. View Sample Driver & Engineer  
+// 2. Load Sample Data  
+// 3. Export Current Data to File  
+// 4. View Application Info / Credits  
+// 5. Return to Main Menu
+
+
+
+
+// Display menu ********** Delete
+// void displayMenu() {
+
+//     cout << R"(
+//         _________   __  ___                                             __ 
+//        / ____<  /  /  |/  /___ _____  ____ _____ _____ ___  ___  ____  / /_
+//       / /_   / /  / /|_/ / __ `/ __ \/ __ `/ __ `/ __ `__ \/ _ \/ __ \/ __/
+//      / __/  / /  / /  / / /_/ / / / / /_/ / /_/ / / / / / /  __/ / / / /_  
+//     /_/____/_/  /_/  /_/\__,_/_/ /_/\__,_/\__, /_/ /_/ /_/\___/_/ /_/\__/  
+//       / ___/__  _______/ /____  ____ ___ /____/                            
+//       \__ \/ / / / ___/ __/ _ \/ __ `__ \                                  
+//      ___/ / /_/ (__  ) /_/  __/ / / / / /                                  
+//     /____/\__, /____/\__/\___/_/ /_/ /_/                                   
+//          /____/                                                             
+//         )" << '\n';
+
+//     cout << "\nMenu:\n";
+//     cout << "1. Add Race\n";
+//     cout << "2. Register Driver\n";
+//     cout << "3. Display Lap Times\n";
+//     cout << "4. Show Leaderboard\n";
+//     cout << "5. Show Sample Driver and Engineer\n";
+//     cout << "6. Exit\n";
+//     cout << "Enter your choice: ";
+// }
+
+
+
+void personnelManagement(){
+    cout << "Personnel Management selected" << endl;
+
+    int choice;
+    do{
+        displayBanner();
+        cout << " 1. Register New Driver " << endl;
+        cout << " 2. View All Drivers  " << endl;
+        cout << " 3. Search Driver by Name " << endl;
+        cout << " 4. Register New Engineer " << endl;
+        cout << " 5. View All Engineers " << endl;
+        cout << " 6. Search Engineer by Team " << endl;
+        cout << " 7. Return to Main Menu " << endl;
+        cin >> choice;
+
+        switch(choice){
+            case 1:
+                cout << "Registering new drivers...." << endl;
+                pauseAndClear();
+                break;
+            case 2:
+                cout << "View All Drivers...." << endl; 
+                break;
+            case 3:
+                cout << "Searching Drivers by Name...." << endl; 
+                break;
+            case 4:
+                cout << "Registering new Engineers....." << endl; 
+                break;
+            case 5:
+                cout << "View All Engineers....." << endl; 
+                break;
+            case 6:
+                cout << "Search Engineers by Team....." << endl; 
+                break;
+            case 7:
+                cout << "Returning to Main Menu....." << endl; 
+                break;
+            default:
+                cout << "Invalid choice. Please select an option between 1 and 7" << endl;
+                break;
+        }
+    } while(choice != 7);
 }
+
+void raceManagement(){
+    displayBanner();
+    cout << "Race Management selected" << endl;
+}
+
+void teamManagement(){
+    displayBanner();
+    cout << "Team Management selected" << endl;
+}
+
+void vehicleManagement(){
+    displayBanner();
+    cout << "Vehicle Management selected" << endl;
+}
+
+void performanceStats(){
+    displayBanner();
+    cout << "Performance Management selected" << endl;
+}
+
+
+
+
+
+void mainMenu(){
+    displayBanner();
+    int choice;
+    do{
+        cout << "Main Menu" << endl;
+        cout << "1. Personnel Management" << endl; 
+        cout << "2. Race Management" << endl;                       
+        cout << "3. Team Management" << endl;                       
+        cout << "4. Vehicle Management" << endl;                     
+        cout << "5. Performance & Stats" << endl;                                
+        cout << "6. Exit" << endl;
+        cout << "Enter an option: ";
+        cin >> choice;
+
+        switch(choice){
+            case 1:
+                personnelManagement();
+                break;
+            case 2:
+                raceManagement();
+                break;
+            case 3:
+                teamManagement();
+                break;
+            case 4:
+                vehicleManagement();
+                break;
+            case 5:
+                performanceStats();
+                break;
+            case 6:
+                cout << "Exiting program" << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please select an option between 1 and 6" << endl;
+                break;
+        }
+    } while(choice != 6);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Add race to queue
 void addRaceToQueue(RaceNode*& head, Race r) {
@@ -205,83 +439,8 @@ void displayLapsRecursive(LapTime* laps, int index) {
     displayLapsRecursive(laps, index - 1);
 }
 
-int main() {
-    int choice;
-    RaceNode* raceHead = nullptr;
-    static int nextID = 1;
-
-    do {
-        displayMenu();
-        cin >> choice;
-        cin.ignore();
-
-        if (choice == 1) {
-            string loc, date;
-            int cid;
-            cout << "Enter location: "; getline(cin, loc);
-            cout << "Enter date: "; getline(cin, date);
-            cout << "Enter course ID: "; cin >> cid;
-            Race r(loc, date, cid);
-            addRaceToQueue(raceHead, r);
-            cout << "Race added.\n";
-        }
-        else if (choice == 2) {
-            string name, team;
-            cout << "Enter driver's name: "; getline(cin, name);
-            cout << "Enter team: "; getline(cin, team);
-            Driver d(name, 30, "1995-05-15", team, nextID++);
-            cout << "Driver registered: " << d.getName() << ", Team: " << d.getTeam() << ", Number: " << d.getDriverNum() << endl;
-        }
-        else if (choice == 3) {
-            ifstream in("lapResultsIn.txt");
-            if (!in) { cout << "Lap file not found.\n"; continue; }
-            int lapSize;
-            in >> lapSize;
-            LapTime* laps = new LapTime[lapSize];
-            for (int i = 0; i < lapSize; ++i) {
-                string name, make;
-                float t;
-                in >> name >> make >> t;
-                laps[i] = LapTime(name, make, t);
-            }
-            cout << "\nLap times in reverse:\n";
-            displayLapsRecursive(laps, lapSize - 1);
-            delete[] laps;
-        }
-        else if (choice == 4) {
-            ifstream in("leaderIn.txt");
-            int size;
-            in >> size;
-            Leaderboard* lb = new Leaderboard[size];
-            for (int i = 0; i < size; ++i) {
-                string name; int pts, w, p;
-                in >> name >> pts >> w >> p;
-                lb[i] = Leaderboard(name, pts, w, p);
-            }
-            cout << "Leaderboard:\n";
-            for (int i = 0; i < size; ++i)
-                cout << lb[i].getName() << " - " << lb[i].getPoints() << " points\n";
-            delete[] lb;
-        }
-        else if (choice == 5) {
-            Driver sampleDriver("Michael Schumacher", 30, "1995-05-15", "Ferrari", 7);
-            Engineer sampleEngineer("Fernando Alonso", 40, "1985-08-25", "McLaren", 14, "Mechanical Engineering");
-
-            cout << "Driver: " << sampleDriver.getName() << ", Age: " << sampleDriver.getAge()
-                 << ", DOB: " << sampleDriver.getDateOfBirth() << ", Team: " << sampleDriver.getTeam()
-                 << ", Number: " << sampleDriver.getDriverNum() << endl;
-
-            cout << "Engineer: " << sampleEngineer.getName() << ", Age: " << sampleEngineer.getAge()
-                 << ", DOB: " << sampleEngineer.getDateOfBirth() << ", Team: " << sampleEngineer.getTeam()
-                 << ", ID: " << sampleEngineer.getId() << ", Qualification: " << sampleEngineer.getQualification() << endl;
-        }
-
-    } while (choice != 6);
-
-    while (raceHead) {
-        RaceNode* temp = raceHead;
-        raceHead = raceHead->next;
-        delete temp;
-    }
+int main(){
+    mainMenu();
+   
     return 0;
 }
