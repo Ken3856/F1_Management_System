@@ -1,0 +1,107 @@
+class RaceNode {
+public:
+    Race data;
+    RaceNode* next;
+
+    RaceNode(Race r) : data(r), next(NULL) {}
+    RaceNode() :data(Race()), next(NULL) {}
+};
+
+class Queue
+{
+private:
+    RaceNode* listhead;
+    RaceNode* listtail;
+public:
+    Queue()
+    {
+        listhead = NULL;
+        listtail = NULL;
+    }
+    ~Queue()
+    {
+        RaceNode* temp;
+        while (listhead != NULL)
+        {
+            temp = listhead;
+            listhead = listhead->next;
+            delete temp;
+        }
+    }
+    Queue(const Queue& q);
+    void addRaceToQueue(const Race& r);
+    Race pop();
+};
+
+void Queue::addRaceToQueue(const Race& r)
+{
+    RaceNode* temp = new RaceNode(r);
+
+    if (temp == NULL)
+    {
+        cout << "overflow error" << endl;
+    }
+    else
+    {
+        if (listhead == NULL)
+        {   // if the queue is empry
+            listhead = temp;
+            listtail = temp;
+
+        }
+        else
+        {
+            listtail->next = temp;
+            listtail = temp;    
+        }
+    }
+}
+
+Race Queue::pop()
+{
+    if (listhead == NULL)
+    {
+        cout << "underflow error" << endl;
+        return Race();
+    }
+    else
+    {
+        RaceNode* temp = listhead;
+        Race poppedRace = listhead->data;
+        listhead = listhead->next;
+        delete temp;
+        return poppedRace;
+    }
+}
+
+Queue::Queue(const Queue& q)
+{
+    RaceNode* hold = q.listhead;//let hold be as the The head pointer of the source queue
+    RaceNode* temp;
+    RaceNode* oldtemp;
+
+    if (hold == NULL)//if the source queue is empty,then the cory queue be empty too
+    {
+        listhead = NULL;
+        listtail = NULL;
+    }
+    else
+    {
+        temp = new RaceNode;
+        listhead = temp;
+
+        while (hold != NULL)
+        {
+            temp->data = hold->data;
+            oldtemp = temp;
+            hold = hold->next;
+            if (hold != NULL)
+            {
+                temp = new RaceNode;
+                oldtemp->next = temp;
+            }
+        }
+        listtail = temp;
+        listtail->next = NULL;
+    }
+}
