@@ -4,7 +4,12 @@
 #include <fstream>
 #include <string>
 #include <queue>
+
+#include <unordered_map>
+#include <vector> // Used for mapping in qualified association.
 using namespace std;
+
+
 
 void displayBanner(){
     system("CLS");
@@ -22,6 +27,7 @@ void displayBanner(){
         )" << '\n';
 }
 
+// ********* Function to clear and refresh screen ********************* 
 void pauseAndClear(){
     cout << "\nPress Enter to return to the menu...";
     cin.ignore();
@@ -36,23 +42,23 @@ private:
     int day, month, year;
 
 public:
-    Date() : day(0), month(0), year(0) {}
-    Date(int d, int m, int y) : day(d), month(m), year(y) {}
+    Date() : day(0), month(0), year(0){}
+    Date(int d, int m, int y) : day(d), month(m), year(y){}
     string getDateString() const {
         return to_string(day) + "/" + to_string(month) + "/" + to_string(year);
     }
 };
 
-// Abstract Base class Person
-class Person {
+// ****************** Abstract Base class Person *****************************************
+class Person{
 protected:
     string name;
     int age;
     string dateOfBirth;
 
 public:
-    Person(const string& name, int age, const string& dob) : name(name), age(age), dateOfBirth(dob) {}
-    virtual ~Person() {
+    Person(const string& name, int age, const string& dob) : name(name), age(age), dateOfBirth(dob){}
+    virtual ~Person(){
         cout << "Destroying person object" << endl;
     }
     virtual string getName() const = 0;
@@ -60,45 +66,185 @@ public:
     virtual string getDateOfBirth() const = 0;
 };
 
-// Driver class (Inheritance from Person)
+// ******************** Driver class (Inheritance from Person) *****************************
 class Driver : public Person {
 private:
-    string team;
+    // string team; // Remove this for qualified asssociation
     int driver_num;
 
 public:
-    Driver(const string& name, int age, const string& dob, const string& team, int driver_num)
-        : Person(name, age, dob), team(team), driver_num(driver_num) {}
+    Driver(const string& name, int age, const string& dob, int driver_num)
+        : Person(name, age, dob), driver_num(driver_num) {}
     ~Driver() {
         cout << "Destroying Driver object" << endl;
     }
     string getName() const override { return name; }
     int getAge() const override { return age; }
     string getDateOfBirth() const override { return dateOfBirth; }
-    string getTeam() const { return team; }
+    // string getTeam() const { return team; }
     int getDriverNum() const { return driver_num; }
 };
 
-// Engineer class (Inheritance from Person)
+
+
+// *********** Association class - Kenneth Johnson *******************************
+
+class raceResult{
+    private:
+
+
+
+    public:
+};
+
+
+
+// *************** Engineer class (Inheritance from Person) ************************
 class Engineer : public Person {
 private:
-    string team;
+    // string team; // Remove this for quaified association
     int id;
     string qualification;
 
 public:
     Engineer(const string& name, int age, const string& dob, const string& team, int id, const string& qualification)
-        : Person(name, age, dob), team(team), id(id), qualification(qualification) {}
+        : Person(name, age, dob), id(id), qualification(qualification) {}
     ~Engineer() {
         cout << "Destroying the Engineer object" << endl;
     }
     string getName() const override { return name; }
     int getAge() const override { return age; }
     string getDateOfBirth() const override { return dateOfBirth; }
-    string getTeam() const { return team; }
+    // string getTeam() const { return team; }
     int getId() const { return id; }
     string getQualification() const { return qualification; }
 };
+
+// ************* Team class (Qualified association)- Kenneth Johnson *********************************
+class Team {
+    public:
+        string name;
+        unordered_map<string, Driver*> roleToDriverMap; // Quaified association
+        vector<Engineer*> engineers;
+
+        Team(string name) : name(name){}
+    
+        void AssignRoleToDriver(const string& role, Driver* d){
+            roleToDriverMap[role] = d;
+        }
+
+        Driver* getDriverByRole(const string& role) const{
+            auto it = roleToDriverMap.find(role);
+            return (it != roleToDriverMap.end()) ? it->second : nullptr;
+        }
+    
+        void addEngineer(Engineer* e) {
+            engineers.push_back(e);
+        }
+    
+        void listMembers() const {
+            cout << "Drivers in team " << name << ":\n";
+            for ( const auto& pair : roleToDriverMap)
+                cout << "- " << pair.first << ": " << pair.second->getName() << endl;
+    
+            cout << "Engineers in team " << name << ":\n";
+            for (Engineer* e : engineers)
+                cout << "- " << e->getName() << " (" << e->getQualification() << ")\n";
+        }
+};
+
+
+
+
+unordered_map<string, Team*> teams; // Qualified association map
+vector<Driver*> allDrivers;
+vector<Engineer*> allEngineers;
+
+//*********** Qualified association ******************** */
+
+void registerDriver(){
+    string name, dob, team, role;
+    int age, driverNumber;
+    cin.ignore();
+    cout << "Enter driver name: ";
+    getline(cin, name);
+    cout << "Enter age: ";
+    cin >> age;
+    cin.ignore();
+    cout << "Enter date of birth: ";
+    getline(cin, dob);
+    cout << "Enter team (Red, Green, Blue): ";
+    getline(cin, team);
+    cout << "Enter driver number: ";
+    cin >> driverNumber;
+    cin.ignore();
+    cout << "Enter role (e.g., Main Driver, Reserve Driver): ";
+    getline(cin, role);
+
+    Driver* d = new Driver(name, age, dob, driverNumber);
+    allDrivers.push_back(d);
+
+    if (teams.find(team) == teams.end()){
+        teams[team] = new Team(team);
+    }
+    teams[team]->AssignRoleToDriver(role, d);
+
+    cout << "Driver registered successfully and assigned role." << endl;
+}
+
+void registerEngineer(){
+    string name, dob, team, qualification;
+    int age, id;
+    cin.ignore();
+    cout << "Enter Engineer name: ";
+    getline(cin, name);
+    cout << "Enter age: ";
+    cin >> age;
+    cin.ignore();
+    cout << "Enter date of birth: ";
+    getline(cin, dob);
+    cout << "Enter team (Red, Green, Blue): ";
+    getline(cin, team);
+    cout << "Enter ID: ";
+    cin >> id;
+    cin.ignore();
+    cout << "Enter qualification: ";
+    getline(cin, qualification);
+
+    Engineer* e = new Engineer(name, age, dob, team, id, qualification);
+    allEngineers.push_back(e);
+
+    if (teams.find(team) == teams.end()){
+        teams[team] = new Team(team);
+    }
+    teams[team]->addEngineer(e);
+
+    cout << "Engineer registered and added to team successfully!" << endl;
+}
+
+void searchDriverByTeamAndRole() {
+    string teamName, role;
+    cin.ignore();
+    cout << "Enter team name (e.g., Red, Green, Blue): ";
+    getline(cin, teamName);
+    cout << "Enter driver role (e.g., Main Driver, Reserve Driver): ";
+    getline(cin, role);
+
+    if (teams.find(teamName) != teams.end()) {
+        Driver* found = teams[teamName]->getDriverByRole(role);
+        if (found) {
+            cout << "Driver found: " << found->getName() << ", Number: " << found->getDriverNum() << endl;
+        } else {
+            cout << "No driver found for role '" << role << "' in team " << teamName << "." << endl;
+        }
+    } else {
+        cout << "Team not found." << endl;
+    }
+
+    pauseAndClear();
+}
+
+
 
 // Race class
 class Race {
@@ -202,7 +348,6 @@ public:
 
 
 void personnelManagement(){
-
     int choice;
     do{
         displayBanner();
@@ -219,13 +364,16 @@ void personnelManagement(){
         switch(choice){
             case 1:
                 cout << "Registering new drivers...." << endl;
+                registerDriver();
                 pauseAndClear();
                 break;
             case 2:
                 cout << "View All Drivers...." << endl; 
                 break;
             case 3:
-                cout << "Searching Drivers by Name...." << endl; 
+                cout << "Searching Drivers by Name...." << endl;
+                searchDriverByTeamAndRole();
+                pauseAndClear(); 
                 break;
             case 4:
                 cout << "Registering new Engineers....." << endl; 
@@ -247,7 +395,6 @@ void personnelManagement(){
 }
 
 void raceManagement(){
-
     int choice;
     do{
         displayBanner();
@@ -390,8 +537,6 @@ void performanceStats(){
 
 
 void mainMenu(){
-
-    
     int choice;
     do{
         displayBanner();
