@@ -1,0 +1,75 @@
+#include<iostream>
+#include<string>
+using namespace std;
+
+class Vehicle {
+protected:
+    string make;
+    string model;
+    string color;
+    int maxSpeed;
+    static int vehicleCount;
+
+public:
+    Vehicle(string make, string model, string color, int maxSpeed)
+        : make(make), model(model), color(color), maxSpeed(maxSpeed) {
+        vehicleCount++;
+    }
+
+    virtual string getMake() const = 0;
+    virtual string getModel() const = 0;
+    virtual string getEngine() const = 0; // Polymorphic behaviour: pure virtual functions where the implementation will be in the derived class(es)
+    virtual string getType() const = 0;
+
+    virtual ~Vehicle() {}
+
+
+    string getColor() const {
+        return color;
+    }
+
+    int getMaxSpeed() const {
+        return maxSpeed;
+    }
+
+    static int displayVehicleCount() {
+        return vehicleCount;
+    }
+};
+
+int Vehicle::vehicleCount = 0;
+
+
+class Team {
+public:
+    Vehicle *v;
+    string name;
+    unordered_map<string, Driver*> roleToDriverMap; // Quaified association
+    vector<Engineer*> engineers;
+
+    Team(string name, Vehicle* vehicle) : name(name),v(vehicle) {}
+
+    void AssignRoleToDriver(const string& role, Driver* d) {
+        roleToDriverMap[role] = d;
+    }
+
+    Driver* getDriverByRole(const string& role) const {
+        auto it = roleToDriverMap.find(role);
+        return (it != roleToDriverMap.end()) ? it->second : nullptr;
+    }
+
+    void addEngineer(Engineer* e) {
+        engineers.push_back(e);
+    }
+
+    void listMembers() const {
+        cout << "Drivers in team " << name << ":\n";
+        for (const auto& pair : roleToDriverMap)
+            cout << "- " << pair.first << ": " << pair.second->getName() << endl;
+
+        cout << "Engineers in team " << name << ":\n";
+        for (Engineer* e : engineers)
+            cout << "- " << e->getName() << " (" << e->getQualification() << ")\n";
+    }
+};
+
