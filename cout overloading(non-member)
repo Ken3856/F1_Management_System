@@ -1,0 +1,194 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+class Driver : public Person {
+private:
+    string team;
+    int driver_num;
+
+public:
+    Driver(const string& name, int age, const string& dob, const string& team, int driver_num)
+        : Person(name, age, dob), team(team), driver_num(driver_num) {}
+    ~Driver() {
+        cout << "Destroying Driver object" << endl;
+    }
+    string getName() const override { return name; }
+    int getAge() const override { return age; }
+    string getDateOfBirth() const override { return dateOfBirth; }
+    string getTeam() const { return team; }
+    int getDriverNum() const { return driver_num; }
+    friend ostream& operator <<(ostream& cout, Driver& d);
+    
+};
+
+ostream& operator <<(ostream& cout, Driver& d)
+{
+    cout << "Name: " << d.getName() << endl;
+    cout << "age: " << d.getAge() << endl;
+    cout << "birth: " << d.getDateOfBirth() << endl;
+    cout << "Driving for: " << d.getTeam() << endl;
+    cout << "driver number: " << d.getDriverNum();
+
+    return cout;
+}
+
+class Engineer : public Person {
+private:
+    string team;
+    int id;
+    string qualification;
+
+public:
+    Engineer(const string& name, int age, const string& dob, const string& team, int id, const string& qualification)
+        : Person(name, age, dob), team(team), id(id), qualification(qualification) {}
+    ~Engineer() {
+        cout << "Destroying the Engineer object" << endl;
+    }
+    string getName() const override { return name; }
+    int getAge() const override { return age; }
+    string getDateOfBirth() const override { return dateOfBirth; }
+    string getTeam() const { return team; }
+    int getId() const { return id; }
+    string getQualification() const { return qualification; }
+    friend ostream& operator <<(ostream& cout, Engineer& e);
+};
+
+ostream& operator <<(ostream& cout, Engineer& e)
+{
+    cout << "Name: " << e.getName() << endl;
+    cout << "Age: " << e.getAge() << endl;
+    cout << "Birth: " << e.getDateOfBirth() << endl;
+    cout << "Works for: " << e.getTeam() << endl;
+    cout << "ID number: " << e.getId() << endl;
+    cout << "Qualification: " << e.getQualification();
+
+    return cout;
+
+}
+
+class Race {
+private:
+    string location;
+    string date;
+    int courseID;
+
+public:
+    Race() {}
+    Race(string loc, string d, int cid) : location(loc), date(d), courseID(cid) {}
+
+    string getLocation() const { return location; }
+    string getDate() const { return date; }
+    int getCourseID() const { return courseID; }
+
+    void setLocation(string loc) { location = loc; }
+    void setDate(string d) { date = d; }
+    void setCourseID(int id) { courseID = id; }
+    friend ostream& operator <<(ostream& cout, Race& r);
+};
+
+ostream& operator <<(ostream& ostr, const Race& r)
+{
+    ostr << "The Race locates in: " << r.getLocation() << endl;
+    ostr << "         date: " << r.getDate() << endl;
+    ostr << "         CourseID: " << r.getCourseID() << endl;
+    
+    return ostr;
+   
+}
+
+class Leaderboard {
+private:
+    string firstName;
+    int points;
+    int wins;
+    int podium;
+
+public:
+    Leaderboard() {}
+    Leaderboard(string name, int pts, int w, int p) : firstName(name), points(pts), wins(w), podium(p) {}
+
+    string getName() const { return firstName; }
+    int getPoints() const { return points; }
+    int getWins() const { return wins; }
+    int getPodium() const { return podium; }
+
+    void setName(string name) { firstName = name; }
+    void setPoints(int pts) { points = pts; }
+    void setWins(int w) { wins = w; }
+    void setPodium(int p) { podium = p; }
+    friend ostream& operator <<(ostream& cout,const Race& l);
+};
+
+ostream& operator<<(ostream& ostr, Leaderboard& l) 
+{
+    ostr <<"Name: " << l.getName() << endl;
+    ostr <<"Points: " << l.getPoints() << endl;
+    ostr <<"Wins: " << l.getWins() << endl;
+    ostr <<"Podiums: " << l.getPodium();
+    return ostr;
+}
+
+class Statistics {
+private:
+    string driverName;
+    string team;
+    float bestTime;
+    int ranking;
+
+public:
+    Statistics() {}
+    Statistics(string name, string t, float bt, int r) : driverName(name), team(t), bestTime(bt), ranking(r) {}
+
+    string getDriverName() const { return driverName; }
+    string getTeam() const { return team; }
+    float getBestTime() const { return bestTime; }
+    int getRanking() const { return ranking; }
+
+    void setDriverName(string name) { driverName = name; }
+    void setTeam(string t) { team = t; }
+    void setBestTime(float time) { bestTime = time; }
+    void setRanking(int r) { ranking = r; }
+    friend ostream& operator<<(ostream& ostr, const Statistics& stats);
+};
+
+ostream& operator<<(ostream& ostr, const Statistics& stats)
+{
+    ostr << "Driver: " << stats.getDriverName() << endl;
+    ostr << "Team: " << stats.getTeam() << endl;
+    ostr << "Best Time: " << stats.getBestTime() << "s" << endl;
+    ostr << "Ranking: #" << stats.getRanking();
+    return ostr;
+}
+
+class LapTime {
+private:
+    string name;
+    string make;
+    float timeLaps;
+
+public:
+    LapTime() {}
+    LapTime(string n, string m, float t) : name(n), make(m), timeLaps(t) {}
+
+    string getName() const { return name; }
+    string getMake() const { return make; }
+    float getTimeLaps() const { return timeLaps; }
+
+    void setName(string n) { name = n; }
+    void setMake(string m) { make = m; }
+    void setTimeLaps(float t) { timeLaps = t; }
+
+    void display() const {
+        cout << name << " " << make << " - " << timeLaps << " laps" << endl;
+    }
+    friend ostream& operator<<(ostream& os, const LapTime& lap);
+};
+
+ostream& operator<<(ostream& ostr, const LapTime& lap)
+{
+    ostr << lap.getName() << " " << lap.getMake() << " - " << lap.getTimeLaps() << " laps";
+    return ostr;
+}
+
