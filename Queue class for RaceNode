@@ -1,3 +1,55 @@
+//delete function and "show the RaceNodes of queue" fuction is added, below there is the application in racemanagement menu. 
+//this is foucus on Racemanagement menu Case 2 and Case 5, cause I see the rest of them have been finished.
+
+#include<iostream>
+#include<fstream>
+#include<string>
+
+
+using namespace std;
+
+void displayBanner() {
+    system("CLS");
+    cout << R"(
+        _________   __  ___                                             __ 
+       / ____<  /  /  |/  /___ _____  ____ _____ _____ ___  ___  ____  / /_
+      / /_   / /  / /|_/ / __ `/ __ \/ __ `/ __ `/ __ `__ \/ _ \/ __ \/ __/
+     / __/  / /  / /  / / /_/ / / / / /_/ / /_/ / / / / / /  __/ / / / /_  
+    /_/____/_/  /_/  /_/\__,_/_/ /_/\__,_/\__, /_/ /_/ /_/\___/_/ /_/\__/  
+      / ___/__  _______/ /____  ____ ___ /____/                            
+      \__ \/ / / / ___/ __/ _ \/ __ `__ \                                  
+     ___/ / /_/ (__  ) /_/  __/ / / / / /                                  
+    /____/\__, /____/\__/\___/_/ /_/ /_/                                   
+         /____/                                                             
+        )" << '\n';
+}
+
+
+class Race {
+private:
+    string location;
+    string date;
+    int courseID;
+
+public:
+    Race() {}
+    Race(string loc, string d, int cid) : location(loc), date(d), courseID(cid) {}
+
+    string getLocation() const { return location; }
+    string getDate() const { return date; }
+    int getCourseID() const { return courseID; }
+
+    void setLocation(string loc) { location = loc; }
+    void setDate(string d) { date = d; }
+    void setCourseID(int id) { courseID = id; }
+    void showRaces()
+    {
+        cout << "The Loaction is : " << getLocation() << endl;
+        cout << "The date is : " << getDate() << endl;
+        cout << "The courseId is : " << getCourseID() << endl;
+    }
+};
+
 class RaceNode {
 public:
     Race data;
@@ -21,23 +73,27 @@ public:
     ~Queue()
     {
         RaceNode* temp;
-        while (listhead != NULL)
+        while (listhead != NULL)//as long as the queue is not empty
         {
-            temp = listhead;
-            listhead = listhead->next;
-            delete temp;
+            temp = listhead;//put listhead to dynamic temp
+            listhead = listhead->next;//get a new listhead
+            delete temp;//delete dynamic temp
         }
     }
     Queue(const Queue& q);
     void addRaceToQueue(const Race& r);
+    void showQueue();
     Race pop();
+    void deleteRaceNode();
 };
+
+
 
 void Queue::addRaceToQueue(const Race& r)
 {
     RaceNode* temp = new RaceNode(r);
 
-    if (temp == NULL)
+    if (temp == NULL)//check the overflow
     {
         cout << "overflow error" << endl;
     }
@@ -46,31 +102,32 @@ void Queue::addRaceToQueue(const Race& r)
         if (listhead == NULL)
         {   // if the queue is empry
             listhead = temp;
-            listtail = temp;
+            listtail = temp;// new node would be the list head and tail
 
         }
         else
         {
-            listtail->next = temp;
-            listtail = temp;    
+            listtail->next = temp;// put new node at the end of queue
+            listtail = temp;     // update new listtail
         }
     }
 }
 
 Race Queue::pop()
 {
-    if (listhead == NULL)
+    if (listhead == NULL)//if it's an empty queue ,then return a default value Class Student
     {
         cout << "underflow error" << endl;
         return Race();
     }
     else
     {
-        RaceNode* temp = listhead;
-        Race poppedRace = listhead->data;
-        listhead = listhead->next;
-        delete temp;
-        return poppedRace;
+        RaceNode* temp = listhead;//push listhead to temp (dynamic memory)
+        Race poppedRace = listhead->data;//put the data of listhead to an new object 
+        listhead = listhead->next;//let the next of original listhead be the new listhead
+        delete temp;//delete the dynamic
+        return poppedRace;//return the value 
+     
     }
 }
 
@@ -87,21 +144,147 @@ Queue::Queue(const Queue& q)
     }
     else
     {
-        temp = new RaceNode;
-        listhead = temp;
+        temp = new RaceNode;//create a new nede, give it to temp
+        listhead = temp;//let the new node be the new listhead of copy queue
 
-        while (hold != NULL)
+        while (hold != NULL)//if the hold has something, starts to traverse the source queue
         {
-            temp->data = hold->data;
-            oldtemp = temp;
-            hold = hold->next;
-            if (hold != NULL)
+            temp->data = hold->data;//as we set the hold is head of source queue before, now put it to the head of copy queue 
+            oldtemp = temp;//now temp is oldtemp, 
+            hold = hold->next;//make the next of hold before be the new hold, continue to traverse
+            if (hold != NULL)//check if the hold gets the end of source queue
             {
-                temp = new RaceNode;
-                oldtemp->next = temp;
+                temp = new RaceNode;//there is still has somthing to copy, create a new node 
+                oldtemp->next = temp;//connect temp and oldtemp
             }
         }
-        listtail = temp;
-        listtail->next = NULL;
+        listtail = temp;//after finishing the traverse, we make the last one temp as listtail
+        listtail->next = NULL;//Make sure the next pointer of the tail node is NULL
     }
+}
+
+void Queue:: showQueue()
+{
+    if (listhead == NULL)
+    {
+        cout << "The Queue of Race is empty." << endl;
+    }
+    else
+    {
+        cout << "=== Race Queue ===" << endl;
+        RaceNode* temp = new RaceNode;
+        temp = listhead;
+        int count = 1;
+        while (temp != NULL)
+        {
+            cout << "Race # " << count << " :" << endl;
+            temp->data.showRaces();
+            temp = temp->next;
+            count++;
+        }
+    }
+}
+
+void Queue:: deleteRaceNode()
+{
+    if (listhead == NULL)
+    {
+        cout << "The Queue is empty. Nothing to delete." << endl;
+        return;
+    }
+    int total=0;
+    RaceNode* temp = listhead;
+    while (temp != NULL)
+    {
+        total++;
+        temp = temp->next;
+    }
+    int num;
+    showQueue();
+    cout << "Which Race would you like to delete ? " << endl;
+    cin >> num;
+    if (num<1 || num>total)
+    {
+        cout << "error input,please choose a number between 1 and " << total << endl;
+        return;
+    }
+
+    string confirm;
+    cout << "Are you sure you want to delete Race # " << num << " ？ (yes/no)" << endl;
+    cin >> confirm;
+    if (confirm != "Yes" && confirm != "yes" && confirm != "YES")
+    {
+        cout << "deletion cancled " << endl;
+        return;
+    }
+    RaceNode* current = listhead;
+    RaceNode* prev = NULL;
+
+    if (num == 1)
+    {
+        listhead = current->next;
+        delete current;
+        if (listhead == NULL)
+        {
+            listtail = NULL;
+        }
+        cout << "Race # 1 has been deleted" << endl;
+        return;
+    }
+    for (int i=1;i < num;i++)
+    {
+        prev = current;
+        current = current->next;
+    }
+    prev->next = current->next;
+    if (current == listtail)
+    {
+        listtail = prev;
+    }
+    delete current;
+
+    cout << "Race # " << num << " has been deleted !" << endl;
+}
+
+
+
+void raceManagement() {
+    Queue RaceQueue;
+    int choice;
+    do {
+        displayBanner();
+        cout << "==== Race Management Menu ==== \n" << endl;
+        cout << " 1. Schedule New Race " << endl;
+        cout << " 2. View Schdule Races (Queue) " << endl;
+        cout << " 3. Enter race results " << endl;
+        cout << " 4. View Race Results " << endl;
+        cout << " 5. Delete Past Race From Queue " << endl;
+        cout << " 6. Return to Main Menu " << endl;
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            cout << "==== Schedule New Race ====" << endl;
+            break;
+        case 2:
+            cout << "==== View Schdule Races (Queue) ====" << endl;
+            RaceQueue.showQueue();
+            break;
+        case 3:
+            cout << "==== Enter Race Results ====" << endl;
+            break;
+        case 4:
+            cout << "==== View Race Results ====" << endl;
+            break;
+        case 5:
+            cout << "==== Delete Past Race From Queue ====" << endl;
+            RaceQueue.deleteRaceNode();
+            break;
+        case 6:
+            cout << "Returning to Main Menu...." << endl;
+            break;
+        default:
+            cout << "Invalid option selected. Please choose an option between 1 and 6." << endl;
+        }
+    } while (choice != 6);
 }
