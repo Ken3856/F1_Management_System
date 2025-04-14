@@ -1,0 +1,245 @@
+//.h file//
+
+#pragma once
+#include <string>
+#include <vector>
+#include <iostream>
+#include <algorithm> 
+
+class RaceEvent;
+class Racer;
+
+class RaceResult {
+private:
+    float raceTime;
+    int position;
+    std::string eventName;
+    std::string racerName;
+
+public:
+    RaceResult(float time, int pos, std::string eName, std::string rName);
+    void displayRaceResult() const;
+    // an Overload + operator as a member function
+    RaceResult operator+(const RaceResult& other) const;
+
+
+    int getPosition() const {
+        return position;
+        }
+    float getRaceTime() const {
+        return raceTime; 
+        
+        }
+    std::string getEventName() const {
+        return eventName;
+        }
+    
+};
+
+class RaceEvent {
+private:
+    std::string eventName;
+    std::string eventDate;
+    std::string eventTime;
+    std::string eventLocation;
+    std::vector<RaceResult> raceResults;
+
+public:
+    RaceEvent(std::string name, std::string date, std::string time, std::string location);
+    void addRaceResult(const RaceResult& result);
+    void displayRaceDetails() const;
+    void displayPodium() const;
+};
+
+class Racer {
+private:
+    std::string name;
+    std::string team;
+    std::string nationality;
+    int age;
+    std::vector<RaceResult> raceResults;
+    
+    static int totalRacers;  // A static varible to keep track of objects created
+
+
+public:
+    Racer(std::string n, std::string t, std::string nat, int a);
+    void addRaceResult(const RaceResult& result);
+    void printRacerDetails() const;
+    
+    static int getTotalRacers();  // Static function to access the value
+
+};
+
+
+// ---------------------------
+// Class: RaceManager
+// Purpose: Keeps a list of racers (basic association)
+// ---------------------------
+class RaceManager {
+private:
+    std::vector<Racer*> racers; // ASSOCIATION: which stores pointers to racers, doesn't mean we own them
+
+public:
+    void registerRacer(Racer* racer); // Adds a racer (association)
+    void showRacers() const;          // Displays all associated racers
+};
+
+//.cpp file//
+#include "f1_classes.h"
+
+RaceResult::RaceResult(float time, int pos, std::string eName, std::string rName)
+    : raceTime(time), position(pos), eventName(eName), racerName(rName) {}
+    
+RaceResult RaceResult::operator+(const RaceResult& other) const {
+    // Combine the race times
+    float totalTime = this->raceTime + other.raceTime;
+
+    // You can customize this — we’ll set average position and generic names
+    int averagePosition = (this->position + other.position) / 2;
+
+    return RaceResult(
+        totalTime,
+        averagePosition,
+        "Combined Event",      // random event name
+        "Multiple Racers"      // random racer name
+    );
+}
+
+
+void RaceResult::displayRaceResult() const {
+    std::cout << "\n[RACE RESULT]\n";
+    std::cout << "Event: " << eventName << "\n";
+    std::cout << "Racer: " << racerName << "\n";
+    std::cout << "Time: " << raceTime << "s\n";
+    std::cout << "Position: " << position << "\n";
+}
+
+RaceEvent::RaceEvent(std::string name, std::string date, std::string time, std::string location)
+    : eventName(name), eventDate(date), eventTime(time), eventLocation(location) {}
+
+void RaceEvent::addRaceResult(const RaceResult& result) {
+    raceResults.push_back(result);
+}
+
+void RaceEvent::displayRaceDetails() const {
+    std::cout << "\n=== RACE EVENT DETAILS ===\n";
+    std::cout << "Event: " << eventName << "\nDate: " << eventDate
+              << "\nTime: " << eventTime << "\nLocation: " << eventLocation << "\n";
+
+    std::cout << "\n-- Race Results --\n";
+    for (const auto& result : raceResults) {
+        result.displayRaceResult();
+    }
+}
+
+void RaceEvent::displayPodium() const {
+    std::vector<RaceResult> sorted = raceResults;
+    std::sort(sorted.begin(), sorted.end(), [](const RaceResult& a, const RaceResult& b) {
+        return a.getPosition() < b.getPosition();
+    });
+
+    std::cout << "\n🏆 Top 3 Podium Finishers:\n";
+    for (int i = 0; i < std::min(3, (int)sorted.size()); ++i) {
+        std::cout << "Position #" << sorted[i].getPosition() << ":\n";
+        sorted[i].displayRaceResult();
+    }
+}
+
+Racer::Racer(std::string n, std::string t, std::string nat, int a)
+    : name(n), team(t), nationality(nat), age(a) {
+    Racer::totalRacers++;  
+}
+
+    
+
+
+void Racer::addRaceResult(const RaceResult& result) {
+    raceResults.push_back(result);
+}
+
+void Racer::printRacerDetails() const {
+    std::cout << "\n=== RACER DETAILS ===\n";
+    std::cout << "Name: " << name << "\nTeam: " << team
+              << "\nNationality: " << nationality << "\nAge: " << age << "\n";
+
+    std::cout << "\n-- Race History --\n";
+    for (const auto& result : raceResults) {
+        result.displayRaceResult();
+    }
+}
+
+// ---------------------------
+// RaceManager Implementation
+// ---------------------------
+
+// This function adds a Racer pointer to the racers list
+void RaceManager::registerRacer(Racer* racer) {
+    racers.push_back(racer);
+}
+
+// This function goes through the list and shows each Racer's details
+void RaceManager::showRacers() const {
+    std::cout << "\\n=== REGISTERED RACERS ===\\n";
+    for (const auto& racer : racers) {
+        racer->printRacerDetails(); // We use the racer's own print function
+    }
+}
+
+
+// Initialize static member for Racer
+int Racer::totalRacers = 0;
+
+int Racer::getTotalRacers() {
+    return totalRacers;
+}
+
+//.main.cpp//
+
+#include "f1_classes.h"
+#include <iostream>
+
+int main() {
+    // Create race event
+    RaceEvent monaco("Monaco Grand Prix", "2025-05-20", "14:00", "Monaco");
+
+    // Create racers
+    Racer lewis("Lewis Hamilton", "Mercedes", "UK", 39);
+    Racer max("Max Verstappen", "Red Bull", "Netherlands", 27);
+    Racer charles("Charles Leclerc", "Ferrari", "Monaco", 26);
+
+    // Create race results
+    RaceResult r1(72.34, 1, "Monaco Grand Prix", "Lewis Hamilton");
+    RaceResult r2(72.55, 2, "Monaco Grand Prix", "Max Verstappen");
+    RaceResult r3(73.12, 3, "Monaco Grand Prix", "Charles Leclerc");
+
+    // Add results to event
+    monaco.addRaceResult(r1);
+    monaco.addRaceResult(r2);
+    monaco.addRaceResult(r3);
+
+    // Add results to racers
+    lewis.addRaceResult(r1);
+    max.addRaceResult(r2);
+    charles.addRaceResult(r3);
+
+    // Display race info
+    monaco.displayRaceDetails();
+    monaco.displayPodium();
+
+    // Display racer info
+    lewis.printRacerDetails();
+    max.printRacerDetails();
+    charles.printRacerDetails();
+
+    // Show how many racers were created using the static member
+    std::cout << "\nTotal racers created: " << Racer::getTotalRacers() << "\n";
+    
+    RaceResult combinedResult = r1 + r2;
+
+    std::cout << "\n== Combined Result (using operator+): ==\n";
+    combinedResult.displayRaceResult();
+
+
+    return 0;
+}
