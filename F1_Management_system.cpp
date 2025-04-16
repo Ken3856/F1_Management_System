@@ -1,122 +1,162 @@
-// Version 3.0
+// Version 4.1 - Fixed Compilation Issues and Closer to UML Diagram
+
+// Comments:
+// pop() function of RaceQueue and its copy constructor not used. We need to fugure out where
+// we are going to use this.
+
 
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <queue>
-
 #include <unordered_map>
-#include <vector> // Used for mapping in qualified association.
+#include <vector>
+
 using namespace std;
 
+// Forward declarations (if needed)
+class Driver;
+class Engineer;
+class Race;
 
+// ************ Display Banner & Utility ************
 void displayBanner(){
-    system("CLS");
     cout << R"(
-        _________   __  ___                                             __ 
+        _________   __  ___                                             __
        / ____<  /  /  |/  /___ _____  ____ _____ _____ ___  ___  ____  / /_
       / /_   / /  / /|_/ / __ `/ __ \/ __ `/ __ `/ __ `__ \/ _ \/ __ \/ __/
      / __/  / /  / /  / / /_/ / / / / /_/ / /_/ / / / / / /  __/ / / / /_  
     /_/____/_/  /_/  /_/\__,_/_/ /_/\__,_/\__, /_/ /_/ /_/\___/_/ /_/\__/  
-      / ___/__  _______/ /____  ____ ___ /____/                            
-      \__ \/ / / / ___/ __/ _ \/ __ `__ \                                  
-     ___/ / /_/ (__  ) /_/  __/ / / / / /                                  
-    /____/\__, /____/\__/\___/_/ /_/ /_/                                   
-         /____/                                                             
-        )" << '\n';
+      / ___/__  _______/ /____  ____ ___ /____/
+      \__ \/ / / / ___/ __/ _ \/ __ `__ \
+     ___/ / /_/ (__  ) /_/  __/ / / / / /
+    /____/\__, /____/\__/\___/_/ /_/ /_/
+         /____/
+    )" << '\n';
 }
 
-// ********* Function to clear and refresh screen ********************* 
-void pauseAndClear(){
-    cout << "\nPress Enter to return to the menu...";
-    cin.ignore();
+void clearScreenDisplayBanner(){
+    system("CLS"); // Clear screen (Windows)
+    displayBanner();
+}
+
+void pauseScreen(){
+    cout << "\nPress Enter to continue...";
+    // cin.ignore();
     cin.get();
-    system("CLS");
-
 }
 
-// ****************** Abstract Base class Person *****************************************
-class Person{
-    protected:
-        string name;
-        int age;
-        string dateOfBirth;
-    
-    public:
-        Person(const string& name, int age, const string& dob) : name(name), age(age), dateOfBirth(dob){}
-        virtual ~Person(){
-            cout << "Destroying person object" << endl;
-        }
-        virtual string getName() const = 0;
-        virtual int getAge() const = 0;
-        virtual string getDateOfBirth() const = 0;
-        virtual void display() const = 0;
+// void handleInvalidInputChar() {
+//     // Handle invalid input using a character
+//         cin.clear();               // Clear the error state
+//         cin.ignore(100, '\n');     // Discard invalid input up to the next newline
+//         cout << "\nInvalid input. Please enter a number." << endl;
+//         cout << "Press Enter to continue...";
+//         cin.get();                 // Wait for user to press Enter
+// }
+
+// ************ Date Class (Composition) ************
+class Date {
+private:
+    int day, month, year;
+
+public:
+    Date() : day(0), month(0), year(0) {}
+    Date(int d, int m, int y) : day(d), month(m), year(y) {}
+
+    // Helper to convert internal data to string
+    string getDateString() const {
+        return to_string(day) + "/" + to_string(month) + "/" + to_string(year);
+    }
 };
-    
-// ******************** Driver class (Inheritance from Person) *****************************
+
+// Helper function to read a Date from user input
+Date readDateFromUser(const string &prompt) {
+    cout << prompt << " (Day Month Year): ";
+    int d, m, y;
+    char dash1, dash2;
+    cin >> d >> dash1 >> m >> dash2 >> y;
+    cin.ignore(); // Just ignore one character after reading input
+    return Date(d, m, y);
+}
+
+
+// ************ Abstract Base Class: Person ************
+class Person {
+protected:
+    string name;
+    int age;
+    Date dateOfBirth;  // Composition: a Person "has-a" Date
+
+public:
+    Person(const string& nm, int a, const Date& dob)
+        : name(nm), age(a), dateOfBirth(dob) {}
+
+    virtual ~Person(){
+        cout << "Destroying person object" << endl;
+    }
+    virtual string getName() const = 0;
+    virtual int getAge() const = 0;
+    virtual string getDateOfBirth() const = 0;
+    virtual void display() const = 0;
+};
+
+// ************ Driver (Inherits from Person) ************
 class Driver : public Person {
 private:
-    // string team; // Remove this for qualified asssociation
     int driver_num;
 
 public:
-    Driver(const string& name, int age, const string& dob, int driver_num)
-        : Person(name, age, dob), driver_num(driver_num) {}
+    Driver(const string& nm, int a, const Date& dob, int dnum)
+        : Person(nm, a, dob), driver_num(dnum) {}
+
     ~Driver() {
         cout << "Destroying Driver object" << endl;
     }
     string getName() const override { return name; }
     int getAge() const override { return age; }
-    string getDateOfBirth() const override { return dateOfBirth; }
-    // string getTeam() const { return team; }
-    int getDriverNum() const { return driver_num; }
-    void display() const override {
-        cout << "Name: " << name << "\n";
-        cout << "Age: " << age << "\n";
-        cout << "Date of Birth: " << dateOfBirth << "\n";
-        cout << "Driver Number: " << driver_num << "\n";
+    string getDateOfBirth() const override {
+        return dateOfBirth.getDateString(); 
     }
+    int getDriverNum() const { return driver_num; }
 
-};
-    
-// *************** Engineer class (Inheritance from Person) ************************
-class Engineer : public Person{
-    private:
-        // string team; // Remove this for quaified association
-        int id;
-        string qualification;
-    
-    public:
-        Engineer(const string& name, int age, const string& dob, const string& team, int id, const string& qualification)
-            : Person(name, age, dob), id(id), qualification(qualification) {}
-        ~Engineer() {
-            cout << "Destroying the Engineer object" << endl;
-        }
-        string getName() const override { return name; }
-        int getAge() const override { return age; }
-        string getDateOfBirth() const override { return dateOfBirth; }
-        // string getTeam() const { return team; }
-        int getId() const { return id; }
-        string getQualification() const { return qualification; }
-        void display() const override {
-            cout << "Name: " << name << "\n";
-            cout << "Age: " << age << "\n";
-            cout << "Date of Birth: " << dateOfBirth << "\n";
-            cout << "Engineer ID: " << id << "\n";
-            cout << "Qualification: " << qualification << "\n";
-        }        
+    void display() const override {
+        cout << "Name: " << name << "\n"
+             << "Age: " << age << "\n"
+             << "Date of Birth: " << dateOfBirth.getDateString() << "\n"
+             << "Driver Number: " << driver_num << "\n";
+    }
 };
 
-// **** Need to find out how we are using this??
-// class RaceNode{
+// ************ Engineer (Inherits from Person) ************
+class Engineer : public Person {
+private:
+    string id;
+    string qualification;
 
+public:
+    Engineer(const string& nm, int a, const Date& dob, const string& engID, const string& qual) : Person(nm, a, dob), id(engID), qualification(qual) {}
 
-// };
+    ~Engineer() {
+        cout << "Destroying the Engineer object" << endl;
+    }
+    string getName() const override { return name; }
+    int getAge() const override { return age; }
+    string getDateOfBirth() const override {
+        return dateOfBirth.getDateString();
+    }
+    string getId() const { return id; }
+    string getQualification() const { return qualification; }
 
+    void display() const override {
+        cout << "Name: " << name << "\n"
+             << "Age: " << age << "\n"
+             << "Date of Birth: " << dateOfBirth.getDateString() << "\n"
+             << "Engineer ID: " << id << "\n"
+             << "Qualification: " << qualification << "\n";
+    }
+};
 
-
-// ******* Abstract Queue base class with deried wueue class for driver and engineer ***********************
-class Queue{
+// ************ Abstract Base Class for Person Queues + Derived Queues ************
+class PersonQueue {
     protected:
         struct Node {
             Person* person;
@@ -128,561 +168,769 @@ class Queue{
         Node* rear;
     
     public:
-        Queue() : front(nullptr), rear(nullptr) {}
-        virtual ~Queue() {
-            // while (!isEmpty()) pop(); // Let derived classes handle pop cleanup as getting linker error.
-        }
-    
+        PersonQueue() : front(nullptr), rear(nullptr) {}
+        virtual ~PersonQueue() {}  // Let derived classes clean up
         virtual void push(Person* p) = 0;
         virtual void pop() = 0;
         virtual void display() const = 0;
+        bool isEmpty() const { return front == nullptr; }
+    };
     
-        bool isEmpty() const {
-            return front == nullptr;
-        }
-};
-    
-// Derived DriverQueue from Queue
-class DriverQueue : public Queue{
+    class DriverQueue : public PersonQueue {
     public:
-        ~DriverQueue(){
-            while(!isEmpty()){
-                pop();
-            }
+        ~DriverQueue() {
+            while(!isEmpty()){ pop(); }
         }
-
         void push(Person* p) override {
             Node* newNode = new Node(p);
-            if (!rear) {
-                front = rear = newNode;
-            } else {
-                rear->next = newNode;
-                rear = newNode;
-            }
+            if(!rear) { front = rear = newNode; }
+            else { rear->next = newNode; rear = newNode; }
         }
-
-        void pop() override{
-            if (isEmpty()) return;
-            Node* temp = front;
-            front = front->next;
-            delete temp->person;
-            delete temp;
-            if (!front) rear = nullptr;
-        }
-
-        void display() const override{
-            Node* curr = front;
-            while (curr) {
-                curr->person->display(); // Polymorphism call
-                cout << endl;
-                curr = curr->next;
-            }
-        }
-};
-    
-// Derived EngineerQueue from Queue
-class EngineerQueue : public Queue{
-    public:
-
-        ~EngineerQueue(){
-            while(!isEmpty()){
-                pop();
-            }
-        }
-
-        void push(Person* p) override {
-            Node* newNode = new Node(p);
-            if (!rear) {
-                front = rear = newNode;
-            } else {
-                rear->next = newNode;
-                rear = newNode;
-            }
-        }
-
         void pop() override {
-            if (isEmpty()) return;
+            if(isEmpty()) return;
             Node* temp = front;
             front = front->next;
             delete temp->person;
             delete temp;
-            if (!front) rear = nullptr;
+            if(!front) rear = nullptr;
         }
-
         void display() const override {
             Node* curr = front;
-            while (curr) {
-                curr->person->display(); // Polymorphisim call.
+            while(curr) {
+                curr->person->display();
                 cout << endl;
                 curr = curr->next;
             }
         }
-};
+    };
+    
+    class EngineerQueue : public PersonQueue {
+    public:
+        ~EngineerQueue() {
+            while(!isEmpty()){ pop(); }
+        }
+        void push(Person* p) override {
+            Node* newNode = new Node(p);
+            if(!rear) { front = rear = newNode; }
+            else { rear->next = newNode; rear = newNode; }
+        }
+        void pop() override {
+            if(isEmpty()) return;
+            Node* temp = front;
+            front = front->next;
+            delete temp->person;
+            delete temp;
+            if(!front) rear = nullptr;
+        }
+        void display() const override {
+            Node* curr = front;
+            while(curr) {
+                curr->person->display();
+                cout << endl;
+                curr = curr->next;
+            }
+        }
+    };
 
-
-
-// ******* Date class for composition (To be expanded if needed) ****************************
-class Date {
+// ************ RaceResult (Association Class) ************
+class RaceResult {
 private:
-    int day, month, year;
+    Driver* driver;    // Points to the associated Driver
+    const Race* race;  // Points back to the associated Race
+    int position;
+    int points;
+    float bestLapTime;
 
 public:
-    Date() : day(0), month(0), year(0){}
-    Date(int d, int m, int y) : day(d), month(m), year(y){}
-    string getDateString() const {
-        return to_string(day) + "/" + to_string(month) + "/" + to_string(year);
+    RaceResult(Driver* d, const Race* r, int pos, int pts, float lapTime)
+        : driver(d), race(r), position(pos), points(pts), bestLapTime(lapTime) {}
+
+    void display() const;
+};
+
+// ************ Race Class ************
+class Race {
+private:
+    string location;
+    Date date;         // Composition: Race "has-a" Date
+    int courseID;
+    vector<RaceResult*> results;
+
+public:
+    Race(){}
+
+    Race(const string& loc, const Date& d, int cid)
+        : location(loc), date(d), courseID(cid) {}
+
+    ~Race() {
+        // Clean up RaceResult pointers
+        for (auto* rr : results) {
+            delete rr;
+        }
+    }
+
+    string getLocation() const { return location; }
+    string getDate() const { return date.getDateString(); }
+    int getCourseID() const { return courseID; }
+
+    void addRaceResultForDriver(Driver* d, int pos, int pts, float lapTime) {
+        results.push_back(new RaceResult(d, this, pos, pts, lapTime));
+    }
+
+    void displayResults() const {
+        cout << "\n=== Results for Race at " << location
+             << " on " << date.getDateString() << " ===\n";
+        if (results.empty()) {
+            cout << "No results recorded yet.\n";
+            return;
+        }
+        for (auto& r : results) {
+            r->display();
+        }
+    }
+
+    friend class RaceResult; // Allow RaceResult to access private members if needed.
+};
+
+// Implementation of RaceResult::display() (after Race is fully defined)
+void RaceResult::display() const {
+    cout << "Driver: " << driver->getName()
+         << ", Race: " << race->getLocation()
+         << ", Date: " << race->getDate()
+         << ", Position: " << position
+         << ", Points: " << points
+         << ", Best Lap Time: " << bestLapTime << "s\n";
+}
+
+
+// ************ RaceQueue Class for Race Management ************
+class RaceNode {
+    public:
+        Race data;
+        RaceNode* next;
+
+        RaceNode(Race r) : data(r), next(NULL) {}
+        RaceNode() :data(Race()), next(NULL) {}
+    };
+    
+    class RaceQueue {
+    private:
+    private:
+        RaceNode* listhead;
+        RaceNode* listtail;
+    public:
+        RaceQueue(){
+            listhead = NULL;
+            listtail = NULL;
+        }
+        ~RaceQueue() {
+            RaceNode* temp;
+            while(listhead != NULL) //as long as the queue is not empty
+            {
+                temp = listhead;//put listhead to dynamic temp
+                listhead = listhead->next;//get a new listhead
+                delete temp;//delete dynamic temp
+            }
+        }
+        RaceQueue(const RaceQueue& q);
+        void addRaceToQueue(const Race& r);
+        void showQueue();
+        Race pop();
+        void deleteRaceNode();
+    };
+
+
+    void RaceQueue::addRaceToQueue(const Race& r)
+    {
+        RaceNode* temp = new RaceNode(r);
+    
+        if (temp == NULL)//check the overflow
+        {
+            cout << "overflow error" << endl;
+        }
+        else
+        {
+            if (listhead == NULL)
+            {   // if the queue is empry
+                listhead = temp;
+                listtail = temp;// new node would be the list head and tail
+    
+            }
+            else
+            {
+                listtail->next = temp;// put new node at the end of queue
+                listtail = temp;     // update new listtail
+            }
+        }
+    }
+    
+    Race RaceQueue::pop(){
+        if (listhead == NULL)//if it's an empty queue ,then return a default value Class Student
+        {
+            cout << "underflow error" << endl;
+            return Race();
+        }
+        else
+        {
+            RaceNode* temp = listhead;//push listhead to temp (dynamic memory)
+            Race poppedRace = listhead->data;//put the data of listhead to an new object 
+            listhead = listhead->next;//let the next of original listhead be the new listhead
+            delete temp;//delete the dynamic
+            return poppedRace;//return the value 
+         
+        }
+    }
+    
+    RaceQueue::RaceQueue(const RaceQueue& q){
+        RaceNode* hold = q.listhead;//let hold be as the The head pointer of the source queue
+        RaceNode* temp;
+        RaceNode* oldtemp;
+    
+        if (hold == NULL)//if the source queue is empty,then the cory queue be empty too
+        {
+            listhead = NULL;
+            listtail = NULL;
+        }
+        else
+        {
+            temp = new RaceNode;//create a new nede, give it to temp
+            listhead = temp;//let the new node be the new listhead of copy queue
+    
+            while (hold != NULL)//if the hold has something, starts to traverse the source queue
+            {
+                temp->data = hold->data;//as we set the hold is head of source queue before, now put it to the head of copy queue 
+                oldtemp = temp;//now temp is oldtemp, 
+                hold = hold->next;//make the next of hold before be the new hold, continue to traverse
+                if (hold != NULL)//check if the hold gets the end of source queue
+                {
+                    temp = new RaceNode;//there is still has somthing to copy, create a new node 
+                    oldtemp->next = temp;//connect temp and oldtemp
+                }
+            }
+            listtail = temp;//after finishing the traverse, we make the last one temp as listtail
+            listtail->next = NULL;//Make sure the next pointer of the tail node is NULL
+        }
+    }
+    
+    void RaceQueue:: showQueue(){
+        if (listhead == NULL)
+        {
+            cout << "The Queue of Race is empty." << endl;
+        }
+        else
+        {
+            cout << "=== Race Queue ===" << endl;
+            RaceNode* temp = new RaceNode;
+            temp = listhead;
+            int count = 1;
+            while (temp != NULL)
+            {
+                cout << "Race # " << count << " :" << endl;
+                cout << "Location: " << temp->data.getLocation() << endl; // Use getters instead of temp->data.showRaces();
+                cout << "Date: " << temp->data.getDate() << endl;
+                cout << "Course ID: " << temp->data.getCourseID() << endl;
+                temp = temp->next;
+                count++;
+            }
+        }
+    }
+    
+    void RaceQueue:: deleteRaceNode()
+    {
+        if (listhead == NULL)
+        {
+            cout << "The Queue is empty. Nothing to delete." << endl;
+            return;
+        }
+        int total=0;
+        RaceNode* temp = listhead;
+        while (temp != NULL)
+        {
+            total++;
+            temp = temp->next;
+        }
+        int num;
+        showQueue();
+        cout << "Which Race would you like to delete ? " << endl;
+        cin >> num;
+        if (num<1 || num>total)
+        {
+            cout << "error input,please choose a number between 1 and " << total << endl;
+            return;
+        }
+    
+        string confirm;
+        cout << "Are you sure you want to delete Race # " << num << " ？ (yes/no)" << endl;
+        cin >> confirm;
+        if (confirm != "Yes" && confirm != "yes" && confirm != "YES")
+        {
+            cout << "deletion cancled " << endl;
+            return;
+        }
+        RaceNode* current = listhead;
+        RaceNode* prev = NULL;
+    
+        if (num == 1)
+        {
+            listhead = current->next;
+            delete current;
+            if (listhead == NULL)
+            {
+                listtail = NULL;
+            }
+            cout << "Race # 1 has been deleted" << endl;
+            return;
+        }
+        for (int i=1;i < num;i++)
+        {
+            prev = current;
+            current = current->next;
+        }
+        prev->next = current->next;
+        if (current == listtail)
+        {
+            listtail = prev;
+        }
+        delete current;
+    
+        cout << "Race # " << num << " has been deleted !" << endl;
+    }
+
+
+// ************ Team (Qualified Association) ************
+class Team {
+public:
+    string name;
+    // Qualified association: role -> Driver
+    unordered_map<string, Driver*> roleToDriverMap;
+
+
+    // Qualified associaltion: role -> Engineer
+    unordered_map<string, Engineer*> roleToEngineerMap;
+
+    Team(const string &n) : name(n) {}
+
+    // Qualified association for Drivers.
+    void AssignRoleToDriver(const string &role, Driver* d) {
+        roleToDriverMap[role] = d;
+    }
+
+    Driver* getDriverByRole(const string &role) const {
+        auto it = roleToDriverMap.find(role);
+        return (it != roleToDriverMap.end()) ? it->second : nullptr;
+    }
+
+    // Qualified association for Engineers.
+
+    void assignEngineer(const string &role, Engineer* e){ // role is the key
+        roleToEngineerMap[role] = e;
+    }
+
+    Engineer* getEngineerByKey(const string &role) const{
+        auto it = roleToEngineerMap.find(role);
+        return(it != roleToEngineerMap.end()) ? it->second : nullptr;
     }
 };
 
+// ************ RaceManager (Dependency) ************
+class RaceManager {
+private:
+    vector<Race*> races;
 
-// *********** Association class - Kenneth Johnson ******************************* (NEED TO FINISH!!!!)
-// One driver can participate in many races, and one race can have many drivers.
-// The display funciton only handles one race result using the display function, a vector is needed to display all results.
-class RaceResult{
-    private:
-        Driver* driver;
-        const Race* race;
-        int position;
-        int points;
-        float bestLapTime;
-
-    public:
-    RaceResult(Driver* d, const Race* r, int pos, int pts, float lapTime) : driver(d), race(r), position(pos), points(pts), bestLapTime(lapTime){}
-    
-    void display() const{
-        cout << "Driver: " << driver->getName() << ", Race: " << race->getLocation()
-        << ", Date: " << race->getDate() << ", Position: " << position
-        << ", Points: " << points << ", Best Lap Time: " << bestLapTime << "s" << endl;
+public:
+    ~RaceManager() {
+        // Clean up allocated Race objects
+        for (auto* r : races) {
+            delete r;
+        }
     }
 
-};
-
-
-// ************* Team class (Qualified association)- Kenneth Johnson *********************************
-class Team{
-    public:
-        string name; // Name of Team 
-        unordered_map<string, Driver*> roleToDriverMap; // This is quaified association, string is the qualifier ("Main Driver", "Reserve Driver", etc.), Driver* is the object associated with the qualifier.
-        vector<Engineer*> engineers; // Stores pointers to Engineer objets associated with this team.
-
-        Team(string name) : name(name){} // Constructor that initialises the team with the given name.
-    
-        void AssignRoleToDriver(const string& role, Driver* d){ // Function that assigns a driver to a spcific role in the team. THe Role is the qualifier.
-            roleToDriverMap[role] = d; // This adds or updates the map for role to driver.
-        }
-
-        Driver* getDriverByRole(const string& role) const{ // This function retrieve a driver by their role, this is qualified lookup.
-            auto it = roleToDriverMap.find(role); // This looks for a role in the map.
-            return (it != roleToDriverMap.end()) ? it->second : nullptr; // This returns the Driver* if found, else returns a nullptr. 
-        }
-    
-        void addEngineer(Engineer* e) {
-            engineers.push_back(e);
-        }
-    
-        void listMembers() const {
-            cout << "Drivers in team " << name << ":\n";
-            for ( const auto& pair : roleToDriverMap)
-                cout << "- " << pair.first << ": " << pair.second->getName() << endl;
-    
-            cout << "Engineers in team " << name << ":\n";
-            for (Engineer* e : engineers)
-                cout << "- " << e->getName() << " (" << e->getQualification() << ")\n";
-        }
-};
-
-class RaceManager{ // ****** This can be used as a dependancy *********
-    private:
-        vector<Race*> races;
-        vector<Driver*> drivers;
-    public:
-        void scheduleRace(){ // Create and store a new race
-        string loc, date;
-        int courseID;
-
+    // Create & store new race
+    void scheduleRace(class RaceQueue &rq) {
+        cin.ignore(); // Clear buffer
+        string loc;
         cout << "Enter race location: ";
         getline(cin, loc);
-        cout << "Enter race date: ";
-        getline(cin, date);
+
+        Date d = readDateFromUser("Enter race date");
         cout << "Enter course ID: ";
-        cin >> courseID;
-        
-        Race* r = new Race(loc, date, courseID);
+        int cid;
+        cin >> cid;
+        cin.ignore();
+
+        Race* r = new Race(loc, d, cid);
         races.push_back(r);
-        // allRaces.push_back(r);
 
-        cout << "Race sucessfully scheduled" << endl;
+        rq.addRaceToQueue(*r); // Adds a race to the race queue.
+        cout << "Race successfully scheduled.\n";
+    }
+
+    // Use the global allDrivers to enter race results (for the last race)
+    void enterRaceResults(const vector<Driver*>& allDrivers) {
+        if (races.empty() || allDrivers.empty()) {
+            cout << "Make sure at least one race and one driver are registered.\n";
+            return;
         }
+        Race* r = races.back();
+        cout << "Entering results for: " << r->getLocation()
+             << " on " << r->getDate() << "\n";
 
-        void enterRaceResults(){ // Selects race and driver, create raceResults
-            if (races.empty() || allDrivers.empty()) {
-                cout << "Make sure at least one race and one driver are registered.\n";
-                return;
-            }
-
-            Race* r = races.back();
-
-            cout << "Entering results for: " << r->getLocation() << " on " << r->getDate() << endl;
-            for (Driver* d : allDrivers) {
-                int pos, pts;
-                float lap;
-                cout << "Driver: " << d->getName() << "\n";
-                cout << "Enter position: "; cin >> pos;
-                cout << "Enter points: "; cin >> pts;
-                cout << "Enter best lap time: "; cin >> lap;
-
-                r->addRaceResultForDriver(d, pos, pts, lap);
-            }
-            cout << "Results recorded.\n";
-
+        for (Driver* d : allDrivers) {
+            int pos, pts;
+            float lap;
+            cout << "Driver: " << d->getName() << "\n";
+            cout << "Enter position: ";
+            cin >> pos;
+            cout << "Enter points: ";
+            cin >> pts;
+            cout << "Enter best lap time: ";
+            cin >> lap;
+            r->addRaceResultForDriver(d, pos, pts, lap);
         }
+        cout << "Results recorded.\n";
+    }
 
-    void viewRaceResults(){ // Display results for a selected race
+    // Show results for all races
+    void viewRaceResults() const {
         if (races.empty()) {
             cout << "No races scheduled.\n";
             return;
         }
-
-        for (Race* r : races) {
+        for (auto* r : races) {
             r->displayResults();
         }
     }
 };
 
-
+// ************ Global Structures & Objects ************
 DriverQueue driverQueue;
 EngineerQueue engineerQueue;
-
-unordered_map<string, Team*> teams; // Qualified association map, Teams is an unordered map.
+unordered_map<string, Team*> teams;  // For qualified association
 vector<Driver*> allDrivers;
 vector<Engineer*> allEngineers;
-vector<Race*> allRaces;
 RaceManager raceManager;
+RaceQueue raceQueue;
 
-//*********** Qualified association ******************** */
-
+// ************ Registration Functions ************
 void registerDriver(){
-    string name, dob, team, role; // Local variables to hold user input
-    int age, driverNumber; // Local variables to hold user input
-    cin.ignore(); // Clear input buffer.
-    cout << "Enter driver name: "; // Enter Driver Name
-    getline(cin, name); // Reads the full name including the spaces.
-    cout << "Enter age: "; 
-    cin >> age; // Enter Driver Age
-    cin.ignore();
-    cout << "Enter date of birth: ";
-    getline(cin, dob); // Enter Driver DOB string.
-    cout << "Enter team (Red, Green, Blue): ";
-    getline(cin, team);
-    cout << "Enter driver number: ";
-    cin >> driverNumber; // Enter Driver Number
-    cin.ignore();
-    cout << "Enter role (e.g., Main Driver, Reserve Driver): ";
-    getline(cin, role); // Enter Driver Role
+    // cin.ignore(); get rid!!!
+    cout << "Enter Driver name: ";
+    string dname;
+    getline(cin, dname);
 
-    // Dynamically create a new driver object with the data that was entered
-    Driver* d = new Driver(name, age, dob, driverNumber);
-    
-    driverQueue.push(d); // Adds a driver to the queue.
-
-    // Stores the driver pointer in the global allDrivers vector.
-    allDrivers.push_back(d);
-
-    if (teams.find(team) == teams.end()){
-        teams[team] = new Team(team);
-    }
-    teams[team]->AssignRoleToDriver(role, d);
-
-    cout << "Driver registered successfully and assigned role." << endl;
-}
-
-void registerEngineer(){
-    string name, dob, team, qualification;
-    int age, id;
-    cin.ignore();
-    cout << "Enter Engineer name: ";
-    getline(cin, name);
-    cout << "Enter age: ";
+    cout << "Enter Driver age: ";
+    int age;
     cin >> age;
     cin.ignore();
-    cout << "Enter date of birth: ";
-    getline(cin, dob);
-    cout << "Enter team (Red, Green, Blue): ";
-    getline(cin, team);
-    cout << "Enter ID: ";
-    cin >> id;
+
+    Date dob = readDateFromUser("Enter driver date of birth");
+
+    cout << "Enter driver number: ";
+    int dnum;
+    cin >> dnum;
     cin.ignore();
-    cout << "Enter qualification: ";
-    getline(cin, qualification);
 
-    Engineer* e = new Engineer(name, age, dob, team, id, qualification);
+    // Construct a new Driver
+    Driver* d = new Driver(dname, age, dob, dnum);
+    driverQueue.push(d);
+    allDrivers.push_back(d);
 
-    engineerQueue.push(e); // Adds an engineer to the queue.
+    cout << "Enter team name (e.g., Red, Green, Blue): ";
+    string teamName;
+    getline(cin, teamName);
 
+    cout << "Enter role (e.g., Main Driver, Reserve Driver): ";
+    string role;
+    getline(cin, role);
 
-    allEngineers.push_back(e);
-
-    if (teams.find(team) == teams.end()){
-        teams[team] = new Team(team);
+    if (teams.find(teamName) == teams.end()) {
+        teams[teamName] = new Team(teamName);
     }
-    teams[team]->addEngineer(e);
+    teams[teamName]->AssignRoleToDriver(role, d);
 
-    cout << "Engineer registered and added to team successfully!" << endl;
+    cout << "Driver registered successfully and assigned role.\n";
 }
 
+void registerEngineer() {
+    cout << "Enter Engineer name: ";
+    string ename;
+    getline(cin, ename);
+
+    cout << "Enter age: ";
+    int age;
+    cin >> age;
+    cin.ignore();
+
+    Date dob = readDateFromUser("Enter engineer date of birth");
+
+    cout << "Enter Engineer ID: ";
+    string engID;
+    cin >> engID;
+    cin.ignore();
+
+    cout << "Enter qualification: ";
+    string qual;
+    getline(cin, qual);
+
+    Engineer* e = new Engineer(ename, age, dob, engID, qual);
+    engineerQueue.push(e);
+    allEngineers.push_back(e);
+
+    cout << "Enter team name (e.g., Red, Green, Blue): ";
+    string teamName;
+    getline(cin, teamName);
+
+    if (teams.find(teamName) == teams.end()) {
+        teams[teamName] = new Team(teamName);
+    }
+    cout << "Enter the Engineer role (e.g Senior Engineer, Junior Engineer, Technician)" << endl;
+    string role;
+    getline(cin, role);
+    teams[teamName]->assignEngineer(role,e);
+
+    cout << "Engineer registered and added to team successfully!\n";
+}
+
+// ************ Searching ************
 void searchDriverByTeamAndRole() {
-    string teamName, role;
     cin.ignore();
     cout << "Enter team name (e.g., Red, Green, Blue): ";
+    string teamName;
     getline(cin, teamName);
+
     cout << "Enter driver role (e.g., Main Driver, Reserve Driver): ";
+    string role;
     getline(cin, role);
 
     if (teams.find(teamName) != teams.end()) {
         Driver* found = teams[teamName]->getDriverByRole(role);
         if (found) {
-            cout << "Driver found: " << found->getName() << ", Number: " << found->getDriverNum() << endl;
+            cout << "Driver found: " << found->getName()
+                 << ", Number: " << found->getDriverNum() << endl;
         } else {
-            cout << "No driver found for role '" << role << "' in team " << teamName << "." << endl;
+            cout << "No driver found for role '" << role
+                 << "' in team " << teamName << ".\n";
         }
     } else {
-        cout << "Team not found." << endl;
+        cout << "Team not found.\n";
     }
-
-    pauseAndClear();
+    pauseScreen();
 }
 
-
-
-// Statistics class (operator overloading)
-class Statistics{
-    private:
-
-
-    public:
-
-};
-
-
-
-// RaceNode class for queue
-class RaceNode {
-public:
-    Race data;
-    RaceNode* next;
-    RaceNode(Race r) : data(r), next(nullptr){}
-};
-
-
-
+// ************ Example Menus ************
 void personnelManagement(){
     int choice;
-    do{
-        displayBanner();
-        cout << "===== Personnel Management Menu =====\n" << endl;
-        cout << " 1. Register New Driver " << endl;
-        cout << " 2. View All Drivers  " << endl;
-        cout << " 3. Register New Engineer " << endl;
-        cout << " 4. View All Engineers " << endl;
-        cout << " 5. Return to Main Menu " << endl;
+    do {
+        clearScreenDisplayBanner();
+        cout << "===== Personnel Management Menu =====\n\n";
+        cout << " 1. Register New Driver\n";
+        cout << " 2. View All Drivers\n";
+        cout << " 3. Register New Engineer\n";
+        cout << " 4. View All Engineers\n";
+        cout << " 5. Return to Main Menu\n";
+        cout << " Enter an option: ";
         cin >> choice;
+        cin.ignore();
 
         switch(choice){
             case 1:
-                pauseAndClear();
-                displayBanner();
-                cout << "==== Registering new drivers ====" << endl;
+                clearScreenDisplayBanner();
+                cout << "==== Registering new driver ====\n";
                 registerDriver();
-                pauseAndClear();
+                pauseScreen();
                 break;
             case 2:
-                pauseAndClear();
-                 displayBanner();
-                cout << "==== View All Drivers ====" << endl; 
+                clearScreenDisplayBanner();
+                cout << "==== View All Drivers ====\n";
                 driverQueue.display();
-                pauseAndClear();
+                pauseScreen();
                 break;
             case 3:
-                cout << "Registering new Engineers....." << endl; 
+                clearScreenDisplayBanner();
+                cout << "==== Registering new engineer ====\n";
                 registerEngineer();
-                pauseAndClear();
+                pauseScreen();
                 break;
             case 4:
-                cout << "View All Engineers....." << endl; 
+                clearScreenDisplayBanner();
+                cout << "==== View All Engineers ====\n";
                 engineerQueue.display();
-                pauseAndClear();
+                pauseScreen();
                 break;
             case 5:
-                cout << "Returning to Main Menu....." << endl; 
+                cout << "Returning to Main Menu...\n";
                 break;
             default:
-                cout << "Invalid choice. Please select an option between 1 and 7" << endl;
+                cout << "Invalid choice.\n";
                 break;
         }
     } while(choice != 5);
 }
 
+// ******** Race Management Menu *****************
 void raceManagement(){
     int choice;
-    do{
+    do {
         displayBanner();
-        cout << "==== Race Management Menu ==== \n" << endl;
-        cout << " 1. Schedule New Race " << endl;
-        cout << " 2. View Schdule Races (Queue) " << endl;
-        cout << " 3. Enter race results " << endl;
-        cout << " 4. View Race Results " << endl;
-        cout << " 5. Delete Past Race From Queue " << endl;
-        cout << " 6. Return to Main Menu " << endl;
+        cout << "==== Race Management Menu ====\n\n";
+        cout << " 1. Schedule New Race\n";
+        cout << " 2. View Scheduled Races (Queue placeholder)\n";
+        cout << " 3. Enter Race Results\n";
+        cout << " 4. View Race Results\n";
+        cout << " 5. Delete Past Race (Placeholder)\n";
+        cout << " 6. Return to Main Menu\n";
+        cout << " Enter an option: ";
         cin >> choice;
 
         switch(choice){
             case 1:
-                cout << "==== Schedule New Race ====" << endl;
-                raceManager.scheduleRace();
+                cout << "==== Schedule New Race ====\n";
+                raceManager.scheduleRace(raceQueue);
                 break;
             case 2:
-                cout << "==== View Race Results ====" << endl;
+                cout << "==== View Scheduled Races (Placeholder) ====\n";
+                raceQueue.showQueue();
                 break;
             case 3:
-                cout << "==== Enter Race Results ====" << endl;
-                raceManager.enterRaceResults();
+                cout << "==== Enter Race Results ====\n";
+                raceManager.enterRaceResults(allDrivers);
                 break;
             case 4:
-                cout << "==== View Race Results ====" << endl;
+                cout << "==== View Race Results ====\n";
                 raceManager.viewRaceResults();
                 break;
             case 5:
-                cout << "==== Delete Past Race From Queue ====" << endl;
+                cout << "==== Delete Past Race (Placeholder) ====\n";
+                raceQueue.deleteRaceNode();
                 break;
             case 6:
-                cout << "Returning to Main Menu...." << endl;
+                cout << "Returning to Main Menu...\n";
                 break;
             default:
-                cout << "Invalid option selected. Please choose an option between 1 and 6." << endl;
+                cout << "Invalid option.\n";
         }
     } while(choice != 6);
 }
 
+// ******** Team Management Menu *****************
 void teamManagement(){
     int choice;
-    do{
+    do {
         displayBanner();
-        cout << "==== Team Management Menu ==== \n" << endl;
-        cout << " 1. Create New Team " << endl; // Assigns Driver, Engineer, and car
-        cout << " 2. View All Teams " << endl;
-        cout << " 3. Search Driver by Team and Role " << endl;
-        cout << " 4. Search Engineer by Team and Role " << endl;
-        cout << " 5. Return to Main Menu " << endl;
+        cout << "==== Team Management Menu ====\n\n";
+        cout << " 1. Create New Team (Placeholder)\n";
+        cout << " 2. View All Teams (Placeholder)\n";
+        cout << " 3. Search Driver by Team and Role\n";
+        cout << " 4. Search Engineer by Team and Role (Placeholder)\n";
+        cout << " 5. Return to Main Menu\n";
         cin >> choice;
 
         switch(choice){
             case 1:
-                cout << "==== Create New Team ====" << endl;
+                cout << "==== Create New Team (Placeholder) ====\n";
                 break;
             case 2:
-                cout << "==== View All Teams ====" << endl;
+                cout << "==== View All Teams (Placeholder) ====\n";
                 break;
             case 3:
-                cout << "==== Search Driver by Team and Role ====" << endl;
+                cout << "==== Search Driver by Team and Role ====\n";
                 searchDriverByTeamAndRole();
                 break;
             case 4:
-                cout << "==== Search Engineer by Team and Role ====" << endl;
-                // Add qualified association to this here!!!
+                cout << "==== Search Engineer by Team and Role (Placeholder) ====\n";
                 break;
             case 5:
-                cout << "Returning to Main Menu...." << endl;
+                cout << "Returning to Main Menu...\n";
                 break;
             default:
-                cout << "Invalid option selected. Please choose an option between 1 and 5." << endl;
+                cout << "Invalid option.\n";
         }
     } while(choice != 5);
 }
 
+// ******** Vehicle Management Menu ******************
 void vehicleManagement(){
     int choice;
-    do{
+    do {
         displayBanner();
-        cout << "==== Vehicle Management Menu ==== \n" << endl;
-        cout << " 1. Add New Vehicle " << endl;
-        cout << " 2. View All Vehicles " << endl;
-        cout << " 3. Assign Vehicle to Driver " << endl;
-        cout << " 4. Search Vehichle by Make or Driver " << endl;
-        cout << " 5. Return to Main Menu " << endl;
+        cout << "==== Vehicle Management Menu ====\n\n";
+        cout << " 1. Add New Vehicle (Placeholder)\n";
+        cout << " 2. View All Vehicles (Placeholder)\n";
+        cout << " 3. Assign Vehicle to Driver (Placeholder)\n";
+        cout << " 4. Search Vehicle by Make or Driver (Placeholder)\n";
+        cout << " 5. Return to Main Menu\n";
         cin >> choice;
 
         switch(choice){
             case 1:
-                cout << "==== Add New Vehicle ====" << endl;
+                cout << "==== Add New Vehicle (Placeholder) ====\n";
                 break;
             case 2:
-                cout << "==== View All Vehicles ====" << endl;
+                cout << "==== View All Vehicles (Placeholder) ====\n";
                 break;
             case 3:
-                cout << "==== Assign Vehicle to Driver ====" << endl;
+                cout << "==== Assign Vehicle to Driver (Placeholder) ====\n";
                 break;
             case 4:
-                cout << "==== Search Vehichle by Make or Driver ====" << endl;
+                cout << "==== Search Vehicle by Make or Driver (Placeholder) ====\n";
                 break;
             case 5:
-                cout << "Returning to Main Menu...." << endl;
+                cout << "Returning to Main Menu...\n";
                 break;
             default:
-                cout << "Invalid option selected. Please choose an option between 1 and 5." << endl;
+                cout << "Invalid option.\n";
         }
     } while(choice != 5);
 }
 
-
-// Need to figure this out last
+// ******** Performance & Stats menu *********************
 void performanceStats(){
     int choice;
-    do{
+    do {
         displayBanner();
-        cout << "==== Performance Statistics Menu ==== \n" << endl;
-        cout << " 1. View Lap Times (Reverse Order) " << endl;
-        cout << " 2. View Leaderboard " << endl;
-        cout << " 3. View Driver Performance Stats " << endl;
-        cout << " 4. Compare Driver Stats " << endl;
-        cout << " 5. Return to Main Menu " << endl;
+        cout << "==== Performance Statistics Menu ====\n\n";
+        cout << " 1. View Lap Times (Reverse Order) (Placeholder)\n";
+        cout << " 2. View Leaderboard (Placeholder)\n";
+        cout << " 3. View Driver Performance Stats (Placeholder)\n";
+        cout << " 4. Compare Driver Stats (Placeholder)\n";
+        cout << " 5. Return to Main Menu\n";
         cin >> choice;
 
         switch(choice){
             case 1:
-                cout << "==== View Lap Times (Reverse Order) ====" << endl;
+                cout << "==== View Lap Times (Reverse Order) (Placeholder) ====\n";
                 break;
             case 2:
-                cout << "==== View Leaderboard ====" << endl;
+                cout << "==== View Leaderboard (Placeholder) ====\n";
                 break;
             case 3:
-                cout << "==== View Driver Performance Stats ====" << endl;
+                cout << "==== View Driver Performance Stats (Placeholder) ====\n";
                 break;
             case 4:
-                cout << "==== Compare Driver Stats ====" << endl;
+                cout << "==== Compare Driver Stats (Placeholder) ====\n";
                 break;
             case 5:
-                cout << "Returning to Main Menu...." << endl;
+                cout << "Returning to Main Menu...\n";
                 break;
             default:
-                cout << "Invalid option selected. Please choose an option between 1 and 5." << endl;
+                cout << "Invalid option.\n";
         }
     } while(choice != 5);
 }
 
-
-
+// ******** Main menu ****************************
 void mainMenu(){
     int choice;
-    do{
-        displayBanner();
-        cout << "====== Main Menu ========\n" << endl;
-        cout << " 1. Personnel Management" << endl; 
-        cout << " 2. Race Management" << endl;                       
-        cout << " 3. Team Management" << endl;                       
-        cout << " 4. Vehicle Management" << endl;                     
-        cout << " 5. Performance & Stats" << endl;                                
-        cout << " 6. Exit" << endl;
-        cout << "Enter an option: ";
+    do {
+        clearScreenDisplayBanner();
+        cout << "====== Main Menu ========\n\n";
+        cout << " 1. Personnel Management\n";
+        cout << " 2. Race Management\n";
+        cout << " 3. Team Management\n";
+        cout << " 4. Vehicle Management\n";
+        cout << " 5. Performance & Stats\n";
+        cout << " 6. Exit\n";
+        cout << " Enter an option: ";
         cin >> choice;
 
         switch(choice){
@@ -702,30 +950,16 @@ void mainMenu(){
                 performanceStats();
                 break;
             case 6:
-                cout << "Exiting program" << endl;
+                cout << "Exiting program\n";
                 break;
             default:
-                cout << "Invalid choice. Please select an option between 1 and 6" << endl;
+                cout << "Invalid choice. Please select an option between 1 and 6\n";
                 break;
         }
     } while(choice != 6);
 }
 
-
-// Add race to queue
-void addRaceToQueue(RaceNode*& head, Race r) {
-    RaceNode* newNode = new RaceNode(r);
-    if (!head) head = newNode;
-    else {
-        RaceNode* temp = head;
-        while (temp->next) temp = temp->next;
-        temp->next = newNode;
-    }
-}
-
-
 int main(){
     mainMenu();
-   
     return 0;
 }
