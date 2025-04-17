@@ -155,20 +155,6 @@ public:
         return assignedVehicle;
     }
 
-    // void displayInfo() const override {
-    //     cout << "Driver Name: "   << getName() << "\n"
-    //          << "Age: "           << getAge() << "\n"
-    //          << "Date of Birth: " << getDateOfBirth() << "\n"
-    //          << "DriverID: "      << getDriverId() << "\n"
-    //          << "Team: "          << getTeam() << "\n"
-    //          << "Driver Number: " << getDriverNumber() << endl;
-    //     if(assignedVehicle){ // Added for binary association to display relationship
-    //         cout << "Assigned Vehicle: " << assignedVehicle->getMake() << " " << assignedVehicle->getModel() << endl;
-    //     }else{
-    //         cout << "Assigned Vehicle: None" << endl;
-    //     }
-    // }
-
     void displayInfo() const override;
 
     static int getDriverCount(){return driverCount;}
@@ -437,7 +423,7 @@ class Team {
             roleToEngineerMap[role] = e;
         }
     
-        Engineer* getEngineerByKey(const string &role) const{
+        Engineer* getEngineerByRole(const string &role) const{
             auto it = roleToEngineerMap.find(role);
             return(it != roleToEngineerMap.end()) ? it->second : nullptr;
         }
@@ -837,16 +823,16 @@ void assignVehicleToDriver(){
     if(allVehicles.empty() || allDrivers.empty()){
         cout << "No vehiles or drivers are available." << endl;
     }
-    cout << "Choose a vehicle: ";
-    for(int i = 0 ; i < allVehicles.size() ; i++){
-        cout << i+1 << ". " << allVehicles[i]->getModel() << endl;
+    cout << "Choose a vehicle: " << endl;
+    for(int i = 0 ; i < allVehicles.size() ; i++){ // List all vehicles
+        cout << i+1 << ". " << allVehicles[i]->getMake() << " " << allVehicles[i]->getModel() << endl;
     }
 
     int vehicleChoice;
     cin >> vehicleChoice;
     cin.ignore();
 
-    cout << "Choose a Driver: ";
+    cout << "Choose a Driver: " << endl;
     for(int i = 0 ; i < allDrivers.size() ; i++){
         cout << i+1 << ". " << allDrivers[i]->getName() << endl;
     }
@@ -947,7 +933,7 @@ void registerEngineer() {
     if (teams.find(teamName) == teams.end()) {
         teams[teamName] = new Team(teamName);
     }
-    cout << "Enter the Engineer role (e.g Senior Engineer, Junior Engineer, Technician)" << endl;
+    cout << "Enter the Engineer role (e.g Senior Engineer, Junior Engineer, Technician): ";
     string role;
     getline(cin, role);
     teams[teamName]->assignEngineer(role,e);
@@ -955,9 +941,8 @@ void registerEngineer() {
     cout << "Engineer registered and added to team successfully!\n";
 }
 
-// ************ Searching ************
+// ************ Searching - Qualified Assoiciation************
 void searchDriverByTeamAndRole() {
-    cin.ignore();
     cout << "Enter team name (e.g., Red, Green, Blue): ";
     string teamName;
     getline(cin, teamName);
@@ -969,17 +954,40 @@ void searchDriverByTeamAndRole() {
     if (teams.find(teamName) != teams.end()) {
         Driver* found = teams[teamName]->getDriverByRole(role);
         if (found) {
-            cout << "Driver found: " << found->getName()
-                 << ", Number: " << found->getDriverNumber() << endl;
+            cout << "\nDriver found!!! " << endl;
+            found->displayInfo();
+        }else{
+            cout << "No Driver found for role '" << role
+            << "' in team " << teamName << ".\n";
+        }
+    } else{
+        cout << "Team not found.\n";
+    }
+}
+
+void searchEngineerByTeamAndRole() {
+    cout << "Enter team name (e.g., Red, Green, Blue): ";
+    string teamName;
+    getline(cin, teamName);
+
+    cout << "Enter engineer role (e.g., Senior Engineer, Junior Engineer, Technician): ";
+    string role;
+    getline(cin, role);
+
+        if (teams.find(teamName) != teams.end()){
+        Engineer* found = teams[teamName]->getEngineerByRole(role);
+        if (found) {
+            cout << "\nEngineer found!!! " << endl;
+            found->displayInfo();
         } else {
-            cout << "No driver found for role '" << role
+            cout << "No engineer found for role '" << role
                  << "' in team " << teamName << ".\n";
         }
     } else {
         cout << "Team not found.\n";
     }
-    pauseScreen();
 }
+
 
 void Vehicle::assignDriver(Driver* d){
     assignedDriver = d;
@@ -1111,39 +1119,37 @@ void raceManagement(){
 }
 
 // ******** Team Management Menu *****************
-void teamManagement(){
+void searchByTeamAndRole(){
     int choice;
     do {
-        displayBanner();
-        cout << "==== Team Management Menu ====\n\n";
-        cout << " 1. Create New Team (Placeholder)\n";
-        cout << " 2. View All Teams (Placeholder)\n";
-        cout << " 3. Search Driver by Team and Role\n";
-        cout << " 4. Search Engineer by Team and Role (Placeholder)\n";
-        cout << " 5. Return to Main Menu\n";
+        clearScreenDisplayBanner();
+        cout << "==== Search By Team & Role Menu ====\n\n";
+        cout << " 1. Search Driver by Team and Role\n";
+        cout << " 2. Search Engineer by Team and Role \n";
+        cout << " 3. Return to Main Menu\n";
         cin >> choice;
+        cin.ignore();
 
         switch(choice){
             case 1:
-                cout << "==== Create New Team (Placeholder) ====\n";
-                break;
-            case 2:
-                cout << "==== View All Teams (Placeholder) ====\n";
-                break;
-            case 3:
+                clearScreenDisplayBanner();
                 cout << "==== Search Driver by Team and Role ====\n";
                 searchDriverByTeamAndRole();
+                pauseScreen();
                 break;
-            case 4:
-                cout << "==== Search Engineer by Team and Role (Placeholder) ====\n";
+            case 2:
+                clearScreenDisplayBanner();
+                cout << "==== Search Engineer by Team and Role ====\n";
+                searchEngineerByTeamAndRole();
+                pauseScreen();
                 break;
-            case 5:
+            case 3:
                 cout << "Returning to Main Menu...\n";
                 break;
             default:
                 cout << "Invalid option.\n";
         }
-    } while(choice != 5);
+    } while(choice != 3);
 }
 
 // ******** Vehicle Management Menu ******************
@@ -1152,12 +1158,12 @@ void vehicleManagement(){
     do {
         clearScreenDisplayBanner();
         cout << "==== Vehicle Management Menu ====\n\n";
-        cout << " 1. Add New Vehicle (Placeholder)\n";
-        cout << " 2. View All Vehicles (Placeholder)\n";
-        cout << " 3. Assign Vehicle to Driver (Placeholder)\n";
-        cout << " 4. Search Vehicle by Make or Driver (Placeholder)\n";
-        cout << " 5. Return to Main Menu\n";
+        cout << " 1. Add New Vehicle \n";
+        cout << " 2. View All Vehicles \n";
+        cout << " 3. Assign Vehicle to Driver \n";
+        cout << " 4. Return to Main Menu\n";
         cin >> choice;
+        cin.ignore();
 
         switch(choice){
             case 1:
@@ -1230,7 +1236,7 @@ void mainMenu(){
         cout << "====== Main Menu ========\n\n";
         cout << " 1. Personnel Management\n";
         cout << " 2. Race Management\n";
-        cout << " 3. Team Management\n";
+        cout << " 3. Search By Team & Role\n";
         cout << " 4. Vehicle Management\n";
         cout << " 5. Performance & Stats\n";
         cout << " 6. Exit\n";
@@ -1245,7 +1251,7 @@ void mainMenu(){
                 raceManagement();
                 break;
             case 3:
-                teamManagement();
+                searchByTeamAndRole();
                 break;
             case 4:
                 vehicleManagement();
