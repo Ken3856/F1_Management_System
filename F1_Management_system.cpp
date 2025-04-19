@@ -9,6 +9,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
+#include <iomanip>
 
 using namespace std;
 
@@ -16,7 +18,7 @@ using namespace std;
 // Forward declarations
 class Driver;
 class Engineer;
-class Race;
+class RaceEvent;
 class Vehicle;
 class Team;
 class DriverQueue;
@@ -430,276 +432,280 @@ class Team {
     };
     
 // ******************** Race & Results *********************************
-class Race;
+class RaceResult;
+
+
 // ************ RaceResult (Association Class) ************
 class RaceResult {
     private:
         Driver* driver;    // Points to the associated Driver
-        const Race* race;  // Points back to the associated Race
+        const RaceEvent* event;  // Points back to the associated Race
         int position;
-        int points;
-        float bestLapTime;
+        float lapTime;
     
     public:
-        RaceResult(Driver* d, const Race* r, int pos, int pts, float lapTime)
-            : driver(d), race(r), position(pos), points(pts), bestLapTime(lapTime) {}
+        RaceResult(Driver* d, const RaceEvent* e, int pos, float time)
+            : driver(d), event(e), position(pos), lapTime(time) {}
     
-        void display() const;
-    };
-    
-    // ************ Race Class ************
-    class Race {
+        void displayRaceResult() const;
+
+        // combine two results 
+        RaceResult operator+(const RaceResult& o) const {
+            float total = lapTime + o.lapTime;
+            int   avg   = (position + o.position)/2;
+            return { nullptr, nullptr, avg, total };
+        }
+
+        int getPosition() const {return position;}
+        float getRaceTime() const {return lapTime;}
+};
+
+
+
+// ************ Race Event Class ************
+class RaceEvent {
     private:
-        string location;
-        Date date;         // Composition: Race "has-a" Date
-        string courseID;
-        vector<RaceResult*> results;
+        string eventName;
+        Date   eventDate;  // Composition: Race "has-a" Date
+        string eventTime;
+        string eventLocation;
+        vector<RaceResult*> raceResults;
     
     public:
-        Race(){}
+        RaceEvent(){}
+        RaceEvent(const string& name, const Date& d, string time, string loc) 
+        : eventName(name), eventDate(d), eventTime(time), eventLocation(loc) {}
     
-        Race(const string& loc, const Date& d, string cid)
-            : location(loc), date(d), courseID(cid) {}
-    
-        ~Race() {
+        ~RaceEvent() {
             // Clean up RaceResult pointers
-            for (auto* rr : results) {
-                delete rr;
+            for (auto* rr : raceResults) { delete rr;}
+        }
+    
+        // factory style: create & store a new RaceResult
+        void addRaceResult(Driver* d, int pos, float lap) {
+            raceResults.push_back(new RaceResult(d, this, pos, lap));
+        }
+    
+        void displayRaceDetails() const {
+            cout << "\n=== RACE EVENT: " << eventName << " ===\n"
+                 << "Date:     "         << eventDate     << "\n"
+                 << "Time:     "         << eventTime     << "\n"
+                 << "Location: "         << eventLocation << "\n\n"
+                 << "-- All Results --\n";
+            for (auto& r : raceResults)
+              r->displayRaceResult();
+          }
+    
+    
+        void displayPodium() const {
+            auto sorted = raceResults;
+            sort(sorted.begin(), sorted.end(),
+                [](auto* a, auto* b){ return a->getPosition() < b->getPosition(); });
+            cout << "\n Podium:\n";
+            for (int i = 0; i < min(3, (int)sorted.size()); ++i){
+                sorted[i]->displayRaceResult();
             }
         }
     
-        string getLocation() const { return location; }
-        string getDate() const { return date.getDateString(); }
-        string getCourseID() const { return courseID; }
-    
-        void addRaceResultForDriver(Driver* d, int pos, int pts, float lapTime) {
-            results.push_back(new RaceResult(d, this, pos, pts, lapTime));
-        }
-    
-        void displayResults() const {
-            cout << "\n=== Results for Race at " << location
-                 << " on " << date.getDateString() << " ===\n";
-            if (results.empty()) {
-                cout << "No results recorded yet.\n";
-                return;
-            }
-            for (auto& r : results) {
-                r->display();
-            }
-        }
-    
+        // Getters
+        const string& getName()     const { return eventName; }
+        const string& getLocation() const { return eventLocation; }
+        const string  getDate()     const { return eventDate.getDateString(); }
+        const string& getTime()     const { return eventTime; }
+        
         friend class RaceResult; // Allow RaceResult to access private members if needed.
     };
     
-    // Implementation of RaceResult::display() (after Race is fully defined)
-    void RaceResult::display() const {
-        cout << "Driver: " << driver->getName()
-             << ", Race: " << race->getLocation()
-             << ", Date: " << race->getDate()
-             << ", Position: " << position
-             << ", Points: " << points
-             << ", Best Lap Time: " << bestLapTime << "s\n";
-    }
+
+
+// ************ RaceQueue Class for Race Management ************
+class RaceNode {
+    public:
+        RaceEvent data;
+        RaceNode* next;
+
+        RaceNode(RaceEvent e) : data(e), next(NULL) {}
+        RaceNode() :data(RaceEvent()), next(NULL) {}
+};
     
-    
-    // ************ RaceQueue Class for Race Management ************
-    class RaceNode {
-        public:
-            Race data;
-            RaceNode* next;
-    
-            RaceNode(Race r) : data(r), next(NULL) {}
-            RaceNode() :data(Race()), next(NULL) {}
-        };
-        
-        class RaceQueue {
-        private:
-        private:
-            RaceNode* listhead;
-            RaceNode* listtail;
-        public:
-            RaceQueue(){
-                listhead = NULL;
-                listtail = NULL;
-            }
-            ~RaceQueue() {
-                RaceNode* temp;
-                while(listhead != NULL) //as long as the queue is not empty
-                {
-                    temp = listhead;//put listhead to dynamic temp
-                    listhead = listhead->next;//get a new listhead
-                    delete temp;//delete dynamic temp
-                }
-            }
-            RaceQueue(const RaceQueue& q);
-            void addRaceToQueue(const Race& r);
-            void showQueue();
-            Race pop();
-            void deleteRaceNode();
-        };
-    
-    
-        void RaceQueue::addRaceToQueue(const Race& r)
-        {
-            RaceNode* temp = new RaceNode(r);
-        
-            if (temp == NULL)//check the overflow
-            {
-                cout << "overflow error" << endl;
-            }
-            else
-            {
-                if (listhead == NULL)
-                {   // if the queue is empry
-                    listhead = temp;
-                    listtail = temp;// new node would be the list head and tail
-        
-                }
-                else
-                {
-                    listtail->next = temp;// put new node at the end of queue
-                    listtail = temp;     // update new listtail
-                }
-            }
-        }
-        
-        Race RaceQueue::pop(){
-            if (listhead == NULL)//if it's an empty queue ,then return a default value Class Student
-            {
-                cout << "underflow error" << endl;
-                return Race();
-            }
-            else
-            {
-                RaceNode* temp = listhead;//push listhead to temp (dynamic memory)
-                Race poppedRace = listhead->data;//put the data of listhead to an new object 
-                listhead = listhead->next;//let the next of original listhead be the new listhead
-                delete temp;//delete the dynamic
-                return poppedRace;//return the value 
-             
-            }
-        }
-        
-        RaceQueue::RaceQueue(const RaceQueue& q){
-            RaceNode* hold = q.listhead;//let hold be as the The head pointer of the source queue
-            RaceNode* temp;
-            RaceNode* oldtemp;
-        
-            if (hold == NULL)//if the source queue is empty,then the cory queue be empty too
-            {
-                listhead = NULL;
-                listtail = NULL;
-            }
-            else
-            {
-                temp = new RaceNode;//create a new nede, give it to temp
-                listhead = temp;//let the new node be the new listhead of copy queue
-        
-                while (hold != NULL)//if the hold has something, starts to traverse the source queue
-                {
-                    temp->data = hold->data;//as we set the hold is head of source queue before, now put it to the head of copy queue 
-                    oldtemp = temp;//now temp is oldtemp, 
-                    hold = hold->next;//make the next of hold before be the new hold, continue to traverse
-                    if (hold != NULL)//check if the hold gets the end of source queue
-                    {
-                        temp = new RaceNode;//there is still has somthing to copy, create a new node 
-                        oldtemp->next = temp;//connect temp and oldtemp
-                    }
-                }
-                listtail = temp;//after finishing the traverse, we make the last one temp as listtail
-                listtail->next = NULL;//Make sure the next pointer of the tail node is NULL
-            }
-        }
-        
-        void RaceQueue:: showQueue(){
-            if (listhead == NULL)
-            {
-                cout << "The Queue of Race is empty." << endl;
-            }
-            else
-            {
-                cout << "=== Race Queue ===" << endl;
-                RaceNode* temp = new RaceNode;
-                temp = listhead;
-                int count = 1;
-                while (temp != NULL)
-                {
-                    cout << "Race # " << count << " :" << endl;
-                    cout << "Location: " << temp->data.getLocation() << endl; // Use getters instead of temp->data.showRaces();
-                    cout << "Date: " << temp->data.getDate() << endl;
-                    cout << "Course ID: " << temp->data.getCourseID() << endl;
-                    temp = temp->next;
-                    count++;
-                }
-            }
-        }
-        
-        void RaceQueue:: deleteRaceNode()
-        {
-            if (listhead == NULL)
-            {
-                cout << "The Queue is empty. Nothing to delete." << endl;
-                return;
-            }
-            int total=0;
-            RaceNode* temp = listhead;
-            while (temp != NULL)
-            {
-                total++;
-                temp = temp->next;
-            }
-            int num;
-            showQueue();
-            cout << "Which Race would you like to delete ? (choose number) " << endl;
-            cin >> num;
-            if (num<1 || num>total)
-            {
-                cout << "error input,please choose a number between 1 and " << total << endl;
-                return;
-            }
-        
-            string confirm;
-            cout << "Are you sure you want to delete Race # " << num << " (yes/no)" << endl;
-            cin >> confirm;
-            if (confirm != "Yes" && confirm != "yes" && confirm != "YES")
-            {
-                cout << "deletion cancled " << endl;
-                return;
-            }
-            RaceNode* current = listhead;
-            RaceNode* prev = NULL;
-        
-            if (num == 1)
-            {
-                listhead = current->next;
-                delete current;
-                if (listhead == NULL)
-                {
-                    listtail = NULL;
-                }
-                cout << "Race # 1 has been deleted" << endl;
-                return;
-            }
-            for (int i=1;i < num;i++)
-            {
-                prev = current;
-                current = current->next;
-            }
-            prev->next = current->next;
-            if (current == listtail)
-            {
-                listtail = prev;
-            }
-            delete current;
-        
-            cout << "Race # " << num << " has been deleted !" << endl;
-        }
-    
-    
-    // ************ RaceManager (Dependency) - Kenneth ************
-    class RaceManager {
+class RaceQueue {
     private:
-        vector<Race*> races;
+        RaceNode* listhead;
+        RaceNode* listtail;
+    public:
+        RaceQueue(){
+            listhead = NULL;
+            listtail = NULL;
+        }
+        ~RaceQueue() {
+            RaceNode* temp;
+            while(listhead != NULL){ //as long as the queue is not empty
+                temp = listhead;   //put listhead to dynamic temp
+                listhead = listhead->next;  //get a new listhead
+                delete temp;   //delete dynamic temp
+            }
+        }
+        RaceQueue(const RaceQueue& q);
+        void addRaceToQueue(const RaceEvent& e);
+        void showQueue();
+        RaceEvent pop();
+        void deleteRaceNode();
+};
+
+
+void RaceQueue::addRaceToQueue(const RaceEvent& e){
+    RaceNode* temp = new RaceNode(e);
+
+    if (temp == NULL){ //check the overflow
+        cout << "overflow error" << endl;
+    }
+    else{
+        if (listhead == NULL){   // if the queue is empry
+            listhead = temp;
+            listtail = temp;// new node would be the list head and tail
+        }
+        else{
+            listtail->next = temp;// put new node at the end of queue
+            listtail = temp;     // update new listtail
+        }
+    }
+}
+    
+RaceEvent RaceQueue::pop(){
+    if (listhead == NULL){   //if it's an empty queue ,then return a default value Class Student
+        cout << "underflow error" << endl;
+        return RaceEvent();
+    }
+    else
+    {
+        RaceNode* temp = listhead;//push listhead to temp (dynamic memory)
+        RaceEvent poppedRace = listhead->data;//put the data of listhead to an new object 
+        listhead = listhead->next;//let the next of original listhead be the new listhead
+        delete temp;//delete the dynamic
+        return poppedRace;//return the value 
+        
+    }
+}
+        
+RaceQueue::RaceQueue(const RaceQueue& q){
+    RaceNode* hold = q.listhead;//let hold be as the The head pointer of the source queue
+    RaceNode* temp;
+    RaceNode* oldtemp;
+
+    if (hold == NULL){    //if the source queue is empty,then the cory queue be empty too
+        listhead = NULL;
+        listtail = NULL;
+    }
+    else{
+
+        // (!!!**** This creates a memory leak! :) fixed it ***)
+        // temp = new RaceNode;   //create a new nede, give it to temp 
+        // listhead = temp;    //let the new node be the new listhead of copy queue
+
+        RaceNode* temp = listhead;
+
+        while (hold != NULL)  //if the hold has something, starts to traverse the source queue
+        {
+            temp->data = hold->data;   //as we set the hold is head of source queue before, now put it to the head of copy queue 
+            oldtemp = temp;  //now temp is oldtemp, 
+            hold = hold->next;   //make the next of hold before be the new hold, continue to traverse
+            if (hold != NULL){     //check if the hold gets the end of source queue
+                temp = new RaceNode;//there is still has somthing to copy, create a new node 
+                oldtemp->next = temp;//connect temp and oldtemp
+            }
+        }
+        listtail = temp;//after finishing the traverse, we make the last one temp as listtail
+        listtail->next = NULL;//Make sure the next pointer of the tail node is NULL
+    }
+}
+
+void RaceQueue:: showQueue(){
+    if (listhead == NULL){
+        cout << "The Queue of Race is empty." << endl;
+        return;
+    }
+    else{
+        cout << "=== Race Queue ===" << endl;
+        RaceNode* temp = listhead;
+        int count = 1;
+        while (temp != NULL){
+            cout << "Race # " << count << " :" << endl;
+            cout << "Event Name: " << temp->data.getName() << endl;
+            cout << "Event Date: " << temp->data.getDate() << endl;
+            cout << "Event Time: " << temp->data.getTime() << endl;
+            cout << "Location: " << temp->data.getLocation() << endl; // Use getters instead of temp->data.showRaces();
+            temp = temp->next;
+            count++;
+        }
+    }
+}
+
+void RaceQueue:: deleteRaceNode()
+{
+    if (listhead == NULL)
+    {
+        cout << "The Queue is empty. Nothing to delete." << endl;
+        return;
+    }
+    int total=0;
+    RaceNode* temp = listhead;
+    while (temp != NULL)
+    {
+        total++;
+        temp = temp->next;
+    }
+    int num;
+    showQueue();
+    cout << "Which Race would you like to delete ? (choose number) " << endl;
+    cin >> num;
+    if (num<1 || num>total)
+    {
+        cout << "error input,please choose a number between 1 and " << total << endl;
+        return;
+    }
+
+    string confirm;
+    cout << "Are you sure you want to delete Race # " << num << " (yes/no)" << endl;
+    cin >> confirm;
+    if (confirm != "Yes" && confirm != "yes" && confirm != "YES")
+    {
+        cout << "deletion cancled " << endl;
+        return;
+    }
+    RaceNode* current = listhead;
+    RaceNode* prev = NULL;
+
+    if (num == 1)
+    {
+        listhead = current->next;
+        delete current;
+        if (listhead == NULL)
+        {
+            listtail = NULL;
+        }
+        cout << "Race # 1 has been deleted" << endl;
+        return;
+    }
+    for (int i=1;i < num;i++)
+    {
+        prev = current;
+        current = current->next;
+    }
+    prev->next = current->next;
+    if (current == listtail)
+    {
+        listtail = prev;
+    }
+    delete current;
+
+    cout << "Race # " << num << " has been deleted !" << endl;
+}
+
+    
+// ************ RaceManager ************
+class RaceManager {
+    private:
+        vector<RaceEvent*> races;
     
     public:
         ~RaceManager() {
@@ -711,21 +717,24 @@ class RaceResult {
     
         // Create & store new race
         void scheduleRace(class RaceQueue &rq) {
-            string loc;
-            cout << "Enter race location: ";
-            getline(cin, loc);
-    
+            string name;
+            cout << "Enter event name: ";
+            getline(cin, name);
+
             cout << "Enter race date (DD-MM-YY): ";
             Date d;
             cin >> d; // Uses operator oveloading.
             cin.ignore();
+
+            string time;
+            cout << "Enter race time (e.g. 14:00): ";
+            getline(cin, time);
+
+            string loc;
+            cout << "Enter race location: ";
+            getline(cin, loc);
     
-            cout << "Enter course ID: ";
-            string cid;
-            cin >> cid;
-            cin.ignore();
-    
-            Race* r = new Race(loc, d, cid);
+            RaceEvent* r = new RaceEvent(name, d, time, loc);
             races.push_back(r);
     
             rq.addRaceToQueue(*r); // Adds a race to the race queue.
@@ -738,21 +747,23 @@ class RaceResult {
                 cout << "Make sure at least one race and one driver are registered.\n";
                 return;
             }
-            Race* r = races.back();
+            RaceEvent* r = races.back();
             cout << "Entering results for: " << r->getLocation()
                  << " on " << r->getDate() << "\n";
     
             for (Driver* d : allDrivers) {
-                int pos, pts;
-                float lap;
+                int pos, mins, sec, ms;
+                char colon, dot;
+                // float lap;
                 cout << "Driver: " << d->getName() << "\n";
                 cout << "Enter position: ";
                 cin >> pos;
-                cout << "Enter points: ";
-                cin >> pts;
+
                 cout << "Enter best lap time: ";
-                cin >> lap;
-                r->addRaceResultForDriver(d, pos, pts, lap);
+                // cin >> lap;
+                cin >> mins >> colon >> sec >> dot >> ms;
+                float lap = mins*60 + sec + ms/1000.0f;
+                r->addRaceResult(d, pos, lap);
             }
             cout << "Results recorded.\n";
         }
@@ -764,7 +775,7 @@ class RaceResult {
                 return;
             }
             for (auto* r : races) {
-                r->displayResults();
+                r->displayPodium();
             }
         }
     };
@@ -780,7 +791,7 @@ RaceManager raceManager;
 RaceQueue raceQueue;
 
 
-//****************** Free funcitons & Menus **************************** */
+// ****************** Free funcitons & Menus **************************** */
 
 // Added this ***** Vehicle Management functions ********************** */
 void addVehicle() {
@@ -1010,6 +1021,21 @@ void Driver::displayInfo() const {
     }
 }
 
+void RaceResult::displayRaceResult() const {
+    int mm = int(lapTime) / 60;
+    int ss = int(lapTime) % 60;
+    int ms = int((lapTime - mm*60 - ss)*1000 + .5f);
+    cout << "\n[RACE RESULT]\n"
+         << "Event:    " << event->getName()   << "\n"
+         << "Driver:   " << driver->getName()  << "\n"
+         << "Time:     "
+        << setw(2) << setfill('0') << mm << ':'
+        << setw(2) << setfill('0') << ss << '.'
+        << setw(3) << setfill('0') << ms << "\n";
+    cout << "Position: " << position     << endl;
+
+}   
+
 // ************ Personnel Management Menu ************
 void personnelManagement(){
     int choice;
@@ -1060,6 +1086,7 @@ void personnelManagement(){
     } while(choice != 5);
 }
 
+
 // ******** Race Management Menu *****************
 void raceManagement(){
     int choice;
@@ -1067,10 +1094,10 @@ void raceManagement(){
         clearScreenDisplayBanner();
         cout << "==== Race Management Menu ====\n\n";
         cout << " 1. Schedule New Race\n";
-        cout << " 2. View Scheduled Races (Queue placeholder)\n";
+        cout << " 2. View Scheduled Races \n";
         cout << " 3. Enter Race Results\n";
         cout << " 4. View Race Results\n";
-        cout << " 5. Delete Past Race (Placeholder)\n";
+        cout << " 5. Delete Past Race \n";
         cout << " 6. Return to Main Menu\n";
         cout << " Enter an option: ";
         cin >> choice;
@@ -1085,7 +1112,7 @@ void raceManagement(){
                 break;
             case 2:
                 clearScreenDisplayBanner(); // redraw banner 
-                cout << "==== View Scheduled Races (Placeholder) ====\n";
+                cout << "==== View Scheduled Races ====\n";
                 raceQueue.showQueue();
                 pauseScreen(); // Waits for the user to hit Enter
                 break;
@@ -1103,14 +1130,13 @@ void raceManagement(){
                 break;
             case 5:
                 clearScreenDisplayBanner(); // redraw banner 
-                cout << "==== Delete Past Race (Placeholder) ====\n";
+                cout << "==== Delete Past Race ====\n";
                 raceQueue.deleteRaceNode();
                 pauseScreen(); // Waits for the user to hit Enter
                 break;
             case 6:
                 clearScreenDisplayBanner(); // redraw banner 
                 cout << "Returning to Main Menu...\n";
-                pauseScreen(); // Waits for the user to hit Enter
                 break;
             default:
                 cout << "Invalid option.\n";
@@ -1197,35 +1223,49 @@ void vehicleManagement(){
 void performanceStats(){
     int choice;
     do {
-        displayBanner();
+        clearScreenDisplayBanner();
         cout << "==== Performance Statistics Menu ====\n\n";
-        cout << " 1. View Lap Times (Reverse Order) (Placeholder)\n";
-        cout << " 2. View Leaderboard (Placeholder)\n";
-        cout << " 3. View Driver Performance Stats (Placeholder)\n";
-        cout << " 4. Compare Driver Stats (Placeholder)\n";
+        cout << " 1. Average Lap Time\n";
+        cout << " 2. Compare Two Drivers\n";
+        cout << " 3. Combine Two Drives Times \n";
+        cout << " 4. View Registration counts\n";
         cout << " 5. Return to Main Menu\n";
         cin >> choice;
+        cin.ignore();
 
         switch(choice){
             case 1:
-                cout << "==== View Lap Times (Reverse Order) (Placeholder) ====\n";
+                clearScreenDisplayBanner();
+                cout << "==== Average Lap Time ====\n";
+                pauseScreen();
                 break;
             case 2:
-                cout << "==== View Leaderboard (Placeholder) ====\n";
+                clearScreenDisplayBanner();
+                cout << "==== Compare Two Drivers ====\n";
+                pauseScreen();
                 break;
             case 3:
-                cout << "==== View Driver Performance Stats (Placeholder) ====\n";
+                clearScreenDisplayBanner();
+                cout << "==== Combine Two Drives Times ====\n";
+                pauseScreen();
                 break;
             case 4:
-                cout << "==== Compare Driver Stats (Placeholder) ====\n";
+                clearScreenDisplayBanner();
+                cout << "==== View Registration counts ====\n";
+                cout << "Drivers registered:  " << Driver::getDriverCount()   << "\n"
+                     << "Engineers registered: " << Engineer::getEngineerCount()   << "\n"
+                     << "Vehicles in fleet:    " << Vehicle::displayVehicleCount() << "\n"
+                     << "Cars built:           " << Car::getCarCount() << "\n";
+                pauseScreen();
                 break;
             case 5:
+                clearScreenDisplayBanner();
                 cout << "Returning to Main Menu...\n";
                 break;
             default:
                 cout << "Invalid option.\n";
         }
-    } while(choice != 5);
+    } while(choice != 6);
 }
 
 // ******** Main menu ****************************
