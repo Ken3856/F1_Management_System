@@ -101,6 +101,8 @@ istream& operator>>(istream& is, Date& d) {
 
 
 // ************ Abstract Base Class: Person ************
+// To be inherited from by other derived classes
+// Responsible: Eamon
 class Person {
 protected:
     string name;
@@ -202,6 +204,8 @@ int Engineer::engineerCount = 0;
 
 
 // Abstract Base Class for inheritance and polymorphism
+// To be inherited from by other derived classes
+// Responsible: Eamon
 class Vehicle {
     protected:
         string make;
@@ -252,6 +256,7 @@ class Vehicle {
     int Vehicle::vehicleCount = 0;
     
     // Engine class
+    // Responsible: Eamon
     class Engine {
     private:
         string type;
@@ -276,6 +281,7 @@ class Vehicle {
     
     // Car inherits from Vehicle
     // Car has an Engine (composition)
+    // Responsible: Eamon
     class Car : public Vehicle {
     private:
         Engine engine;
