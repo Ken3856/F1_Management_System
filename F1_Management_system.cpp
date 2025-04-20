@@ -59,6 +59,14 @@ void pauseScreen(){
     cin.get();
 }
 
+void handleInvalidInputChar() {
+    // Handle invalid input using a character
+        cin.clear();               // Clear the error state
+        cin.ignore(100, '\n');     // Discard invalid input up to the next newline
+        cout << "\nInvalid input. Please enter a number." << endl;
+        cout << "Press Enter to continue...";
+        cin.get();                 // Wait for user to press Enter
+}
 
 // ************ Date Class (Composition) ************
 class Date {
@@ -120,8 +128,6 @@ public:
     }
     virtual void displayInfo() const = 0; // Pure virtual function to be overriden in derived classes
 };
-
-
 
 
 // ************ Driver & Engineer (Inherits from Person) ************
@@ -319,7 +325,7 @@ class Vehicle {
 
 // ******************** Queues & Team *********************
 // ************ Abstract Base Class for Person Queues + Derived Queues ************
-class PersonQueue {
+class PersonQueue{
     protected:
         struct Node {
             Person* person;
@@ -339,7 +345,7 @@ class PersonQueue {
         bool isEmpty() const { return front == nullptr; }
     };
     
-    class DriverQueue : public PersonQueue {
+class DriverQueue : public PersonQueue{
     public:
         ~DriverQueue() {
             while(!isEmpty()){ pop(); }
@@ -367,7 +373,7 @@ class PersonQueue {
         }
     };
     
-    class EngineerQueue : public PersonQueue {
+class EngineerQueue : public PersonQueue{
     public:
         ~EngineerQueue() {
             while(!isEmpty()){ pop(); }
@@ -415,7 +421,7 @@ class Team {
         }
     
         Driver* getDriverByRole(const string &role) const {
-            auto it = roleToDriverMap.find(role);
+            unordered_map<string, Driver*>::const_iterator it = roleToDriverMap.find(role);
             return (it != roleToDriverMap.end()) ? it->second : nullptr;
         }
     
@@ -426,7 +432,7 @@ class Team {
         }
     
         Engineer* getEngineerByRole(const string &role) const{
-            auto it = roleToEngineerMap.find(role);
+            unordered_map<string, Engineer*>::const_iterator it = roleToEngineerMap.find(role);
             return(it != roleToEngineerMap.end()) ? it->second : nullptr;
         }
     };
@@ -458,8 +464,9 @@ class RaceResult {
 
         int getPosition() const {return position;}
         float getRaceTime() const {return lapTime;}
-};
 
+        Driver* getDriver() const {return driver;}
+};
 
 
 // ************ Race Event Class ************
@@ -478,7 +485,7 @@ class RaceEvent {
     
         ~RaceEvent() {
             // Clean up RaceResult pointers
-            for (auto* rr : raceResults) { delete rr;}
+            for (RaceResult* rr : raceResults) { delete rr;}
         }
     
         // factory style: create & store a new RaceResult
@@ -492,15 +499,15 @@ class RaceEvent {
                  << "Time:     "         << eventTime     << "\n"
                  << "Location: "         << eventLocation << "\n\n"
                  << "-- All Results --\n";
-            for (auto& r : raceResults)
+            for (RaceResult* r : raceResults)
               r->displayRaceResult();
           }
     
     
         void displayPodium() const {
-            auto sorted = raceResults;
+            vector<RaceResult*> sorted = raceResults;
             sort(sorted.begin(), sorted.end(),
-                [](auto* a, auto* b){ return a->getPosition() < b->getPosition(); });
+                [](RaceResult* a, RaceResult* b){ return a->getPosition() < b->getPosition(); });
             cout << "\n Podium:\n";
             for (int i = 0; i < min(3, (int)sorted.size()); ++i){
                 sorted[i]->displayRaceResult();
@@ -512,6 +519,12 @@ class RaceEvent {
         const string& getLocation() const { return eventLocation; }
         const string  getDate()     const { return eventDate.getDateString(); }
         const string& getTime()     const { return eventTime; }
+
+        
+        const vector<RaceResult*>& getRaceResults() const {
+            return raceResults;
+        }
+
         
         friend class RaceResult; // Allow RaceResult to access private members if needed.
     };
@@ -640,10 +653,8 @@ void RaceQueue:: showQueue(){
     }
 }
 
-void RaceQueue:: deleteRaceNode()
-{
-    if (listhead == NULL)
-    {
+void RaceQueue:: deleteRaceNode(){
+    if (listhead == NULL){
         cout << "The Queue is empty. Nothing to delete." << endl;
         return;
     }
@@ -656,10 +667,17 @@ void RaceQueue:: deleteRaceNode()
     }
     int num;
     showQueue();
+
     cout << "Which Race would you like to delete ? (choose number) " << endl;
     cin >> num;
-    if (num<1 || num>total)
-    {
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;
+    }
+    cin.ignore();
+
+
+    if (num<1 || num>total){
         cout << "error input,please choose a number between 1 and " << total << endl;
         return;
     }
@@ -667,33 +685,34 @@ void RaceQueue:: deleteRaceNode()
     string confirm;
     cout << "Are you sure you want to delete Race # " << num << " (yes/no)" << endl;
     cin >> confirm;
-    if (confirm != "Yes" && confirm != "yes" && confirm != "YES")
-    {
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;
+    }
+    cin.ignore();
+
+    if (confirm != "Yes" && confirm != "yes" && confirm != "YES"){
         cout << "deletion cancled " << endl;
         return;
     }
     RaceNode* current = listhead;
     RaceNode* prev = NULL;
 
-    if (num == 1)
-    {
+    if (num == 1){
         listhead = current->next;
         delete current;
-        if (listhead == NULL)
-        {
+        if (listhead == NULL){
             listtail = NULL;
         }
         cout << "Race # 1 has been deleted" << endl;
         return;
     }
-    for (int i=1;i < num;i++)
-    {
+    for (int i=1;i < num;i++){
         prev = current;
         current = current->next;
     }
     prev->next = current->next;
-    if (current == listtail)
-    {
+    if (current == listtail){
         listtail = prev;
     }
     delete current;
@@ -703,17 +722,22 @@ void RaceQueue:: deleteRaceNode()
 
     
 // ************ RaceManager ************
-class RaceManager {
+class RaceManager{
     private:
         vector<RaceEvent*> races;
     
     public:
         ~RaceManager() {
             // Clean up allocated Race objects
-            for (auto* r : races) {
+            for (RaceEvent* r : races) {
                 delete r;
             }
         }
+
+        RaceEvent* getLastRace() const {
+            if (races.empty()) return nullptr;
+            return races.back();
+          }
     
         // Create & store new race
         void scheduleRace(class RaceQueue &rq) {
@@ -724,6 +748,10 @@ class RaceManager {
             cout << "Enter race date (DD-MM-YY): ";
             Date d;
             cin >> d; // Uses operator oveloading.
+            if (cin.fail()) {
+                handleInvalidInputChar();
+                return;
+            }
             cin.ignore();
 
             string time;
@@ -752,33 +780,78 @@ class RaceManager {
                  << " on " << r->getDate() << "\n";
     
             for (Driver* d : allDrivers) {
-                int pos, mins, sec, ms;
-                char colon, dot;
-                // float lap;
-                cout << "Driver: " << d->getName() << "\n";
+                int pos, mins, secs;
+                char c1, c2;
+                string frac;
+
+                cout << "\nDriver: " << d->getName() << "\n";
                 cout << "Enter position: ";
                 cin >> pos;
+                if (cin.fail()) {
+                    handleInvalidInputChar();
+                    return;
+                }
+                cin.ignore();
 
-                cout << "Enter best lap time: ";
-                // cin >> lap;
-                cin >> mins >> colon >> sec >> dot >> ms;
-                float lap = mins*60 + sec + ms/1000.0f;
+                // Enter Lap time
+                cout << "Enter best lap time (MM:SS:FFF): ";            
+                // read something like “05:12:08” or “5:12:8” or “05:12:008”
+                cin >> mins >> c1 >> secs >> c2 >> frac;
+                if (cin.fail() || c1 != ':' || c2 != ':') {
+                    handleInvalidInputChar();
+                    return;
+                }
+                cin.ignore();
+                // normalize fractional part to exactly 3 digits
+                while (frac.length() < 3) frac.push_back('0');
+                if (frac.length() > 3)  frac = frac.substr(0,3);
+            
+                int ms = stoi(frac);
+                float lap = mins*60 + secs + ms/1000.0f;
+
                 r->addRaceResult(d, pos, lap);
+            
             }
             cout << "Results recorded.\n";
         }
     
         // Show results for all races
-        void viewRaceResults() const {
+        void viewRaceResults() const{
             if (races.empty()) {
                 cout << "No races scheduled.\n";
                 return;
             }
-            for (auto* r : races) {
+            for (RaceEvent* r : races){
                 r->displayPodium();
             }
         }
-    };
+
+        double getAverageLapTime() const{
+            double total = 0.0;
+            int count = 0;
+            for (size_t i = 0; i < races.size(); ++i) {
+                const vector<RaceResult*>& results = races[i]->getRaceResults();  // make raceResults public or add a getter
+                for (size_t j = 0; j < results.size(); ++j) {
+                    total += results[j]->getRaceTime();
+                    ++count;
+                }
+            }
+            if (count == 0) return 0.0;
+            return total / count;
+        }
+
+        void displayAverageLapTime() const {
+            if (races.empty()){
+                cout << "No races have been run yet." << endl;
+                return;
+            }
+
+            double avg = getAverageLapTime();
+            cout << "Average lap time across all races: " << fixed << setprecision(3) << avg << " seconds\n"; // Rounds to 3 digits after decimal.
+        }
+        
+
+};
     
 // ************ Global Structures & Objects ************
 DriverQueue driverQueue;
@@ -794,7 +867,7 @@ RaceQueue raceQueue;
 // ****************** Free funcitons & Menus **************************** */
 
 // Added this ***** Vehicle Management functions ********************** */
-void addVehicle() {
+void addVehicle(){
     string make, model, color, engineType;
     int maxSpeed, horsepower;
 
@@ -806,11 +879,19 @@ void addVehicle() {
     getline(cin, color);
     cout << "Enter Max Speed: ";
     cin >> maxSpeed;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;
+    }
     cin.ignore();
     cout << "Enter Engine Type: ";
     getline(cin, engineType);
     cout << "Enter Horsepower: ";
     cin >> horsepower;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;
+    }
     cin.ignore();
 
     Vehicle* newVehicle = new Car(make, model, color, maxSpeed, engineType, horsepower);
@@ -819,7 +900,7 @@ void addVehicle() {
     cout << "Vehicle added successfully!\n";
 }
 
-void viewAllVehicles() {
+void viewAllVehicles(){
     if (allVehicles.empty()) {
         cout << "No vehicles registered yet.\n";
     } else {
@@ -841,6 +922,10 @@ void assignVehicleToDriver(){
 
     int vehicleChoice;
     cin >> vehicleChoice;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;  // Loop back
+    }
     cin.ignore();
 
     cout << "Choose a Driver: " << endl;
@@ -849,6 +934,10 @@ void assignVehicleToDriver(){
     }
     int driverChoice;
     cin >> driverChoice;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;  // Loop back
+    }
     cin.ignore();
 
     if (vehicleChoice > 0 && vehicleChoice <= allVehicles.size() && driverChoice > 0 && driverChoice <= allDrivers.size()){
@@ -868,17 +957,29 @@ void registerDriver(){
     cout << "Enter Driver age: ";
     int age;
     cin >> age;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;  // Loop back
+    }
     cin.ignore();
 
     // Uses operator overloading
     cout << "Enter Driver date of birth (DD-MM-YY): ";
     Date dob;
     cin >> dob; // Uses istream& operator >>(istream&, Date&)
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;  // Loop back
+    }
     cin.ignore();
 
     cout << "Enter Driver ID: ";
     int driverID;
     cin >> driverID;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;  // Loop back
+    }
     cin.ignore();
 
     cout << "Enter Team Name (e.g. Red, Green, Blue): ";
@@ -888,6 +989,10 @@ void registerDriver(){
     cout << "Enter driver number: ";
     int driverNumber;
     cin >> driverNumber;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;  // Loop back function
+    }
     cin.ignore();
 
     // Construct a new Driver
@@ -907,7 +1012,7 @@ void registerDriver(){
     cout << "Driver registered successfully and assigned role.\n";
 }
 
-void registerEngineer() {
+void registerEngineer(){
     cout << "Enter Engineer name: ";
     string ename;
     getline(cin, ename);
@@ -915,18 +1020,30 @@ void registerEngineer() {
     cout << "Enter age: ";
     int age;
     cin >> age;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;
+    }
     cin.ignore();
 
     // Read date using overloaded operator
     cout << "Enter enngineer date of birth (DD-MM-YY): ";
     Date dob;
     cin >> dob;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;
+    }
     cin.ignore();
 
 
     cout << "Enter Engineer ID: ";
     string engID;
     cin >> engID;
+    if (cin.fail()) {
+        handleInvalidInputChar();
+        return;
+    }
     cin.ignore();
 
     cout << "Enter qualification: ";
@@ -953,7 +1070,7 @@ void registerEngineer() {
 }
 
 // ************ Searching - Qualified Assoiciation************
-void searchDriverByTeamAndRole() {
+void searchDriverByTeamAndRole(){
     cout << "Enter team name (e.g., Red, Green, Blue): ";
     string teamName;
     getline(cin, teamName);
@@ -962,7 +1079,7 @@ void searchDriverByTeamAndRole() {
     string role;
     getline(cin, role);
 
-    if (teams.find(teamName) != teams.end()) {
+    if (teams.find(teamName) != teams.end()){
         Driver* found = teams[teamName]->getDriverByRole(role);
         if (found) {
             cout << "\nDriver found!!! " << endl;
@@ -1049,6 +1166,10 @@ void personnelManagement(){
         cout << " 5. Return to Main Menu\n";
         cout << " Enter an option: ";
         cin >> choice;
+        if (cin.fail()) {
+            handleInvalidInputChar();
+            continue;  // re‑draw the same menu
+        }
         cin.ignore();
 
         switch(choice){
@@ -1101,6 +1222,10 @@ void raceManagement(){
         cout << " 6. Return to Main Menu\n";
         cout << " Enter an option: ";
         cin >> choice;
+        if (cin.fail()) {
+            handleInvalidInputChar();
+            continue;  // re‑draw the same menu
+        }
         cin.ignore();
 
         switch(choice){
@@ -1154,6 +1279,10 @@ void searchByTeamAndRole(){
         cout << " 2. Search Engineer by Team and Role \n";
         cout << " 3. Return to Main Menu\n";
         cin >> choice;
+        if (cin.fail()) {
+            handleInvalidInputChar();
+            continue;  // re‑draw the same menu
+        }
         cin.ignore();
 
         switch(choice){
@@ -1189,6 +1318,10 @@ void vehicleManagement(){
         cout << " 3. Assign Vehicle to Driver \n";
         cout << " 4. Return to Main Menu\n";
         cin >> choice;
+        if (cin.fail()) {
+            handleInvalidInputChar();
+            continue;  // re‑draw the same menu
+        }
         cin.ignore();
 
         switch(choice){
@@ -1226,30 +1359,74 @@ void performanceStats(){
         clearScreenDisplayBanner();
         cout << "==== Performance Statistics Menu ====\n\n";
         cout << " 1. Average Lap Time\n";
-        cout << " 2. Compare Two Drivers\n";
-        cout << " 3. Combine Two Drives Times \n";
-        cout << " 4. View Registration counts\n";
-        cout << " 5. Return to Main Menu\n";
+        cout << " 2. Combine Two Drives Times \n";
+        cout << " 3. View Registration counts\n";
+        cout << " 4. Return to Main Menu\n";
         cin >> choice;
+        if (cin.fail()) {
+            handleInvalidInputChar();
+            continue;  // re‑draw the same menu
+        }
         cin.ignore();
 
         switch(choice){
             case 1:
                 clearScreenDisplayBanner();
                 cout << "==== Average Lap Time ====\n";
+                raceManager.displayAverageLapTime();
                 pauseScreen();
                 break;
-            case 2:
-                clearScreenDisplayBanner();
-                cout << "==== Compare Two Drivers ====\n";
-                pauseScreen();
-                break;
-            case 3:
+            case 2:{
                 clearScreenDisplayBanner();
                 cout << "==== Combine Two Drives Times ====\n";
+                RaceEvent* last = raceManager.getLastRace();
+                if (! last) {
+                    cout << "No race has been run yet.\n";
+                    pauseScreen();
+                    break;
+                }
+    
+                // Ask for Drivers Name input
+                string DriverName1, DriverName2;
+                cout << "Enter first Drivers name: ";  
+                getline(cin, DriverName1);
+                cout << "Enter second Drivers name: "; 
+                getline(cin, DriverName2);
+            
+                // Find each driver's RaceResult
+                RaceResult* rr1 = nullptr;
+                RaceResult* rr2 = nullptr;
+                const vector<RaceResult*>& results = last->getRaceResults();
+                for (size_t i = 0; i < results.size(); ++i) {
+                    if (results[i]->getDriver()->getName() == DriverName1) rr1 = results[i];
+                    if (results[i]->getDriver()->getName() == DriverName2) rr2 = results[i];
+                }
+            
+                if (! rr1 || ! rr2) {
+                    cout << "Couldn't find results for one or both drivers in that race.\n";
+                    pauseScreen();
+                    break;
+                }
+            
+                // use your operator+ to combine
+                RaceResult combined = *rr1 + *rr2;
+            
+                // display combined
+                int mm = int(combined.getRaceTime()) / 60;
+                int ss = int(combined.getRaceTime()) % 60;
+                int ms = int((combined.getRaceTime() - mm*60 - ss)*1000 + .5f);
+            
+                cout << "\n[COMBINED RESULT]\n"
+                     << "Drivers: " << DriverName1 << " + " << DriverName2 << "\n"
+                     << "Combined Position (avg): " << combined.getPosition() << "\n"
+                     << "Combined Time: "
+                     << setw(2) << setfill('0') << mm << ':'
+                     << setw(2) << setfill('0') << ss << '.'
+                     << setw(3) << setfill('0') << ms << "\n";
                 pauseScreen();
                 break;
-            case 4:
+            }
+            case 3:
                 clearScreenDisplayBanner();
                 cout << "==== View Registration counts ====\n";
                 cout << "Drivers registered:  " << Driver::getDriverCount()   << "\n"
@@ -1258,14 +1435,14 @@ void performanceStats(){
                      << "Cars built:           " << Car::getCarCount() << "\n";
                 pauseScreen();
                 break;
-            case 5:
+            case 4:
                 clearScreenDisplayBanner();
                 cout << "Returning to Main Menu...\n";
                 break;
             default:
                 cout << "Invalid option.\n";
         }
-    } while(choice != 6);
+    } while(choice != 4);
 }
 
 // ******** Main menu ****************************
@@ -1282,6 +1459,11 @@ void mainMenu(){
         cout << " 6. Exit\n";
         cout << " Enter an option: ";
         cin >> choice;
+        if (cin.fail()) {
+            handleInvalidInputChar();
+            continue;  // re‑draw the same menu
+        }
+        cin.ignore();
 
         switch(choice){
             case 1:
@@ -1311,5 +1493,19 @@ void mainMenu(){
 
 int main(){
     mainMenu();
+
+    // Memory cleanup of heap memory allocated in heap for containers.
+    // delete all Vehicles
+    for (Vehicle* v : allVehicles) {
+        delete v;
+    }
+    allVehicles.clear();
+
+    // delete all Teams
+    for (const pair<const string, Team*>& kv : teams) {
+        delete kv.second;
+    }
+    teams.clear();
+    
     return 0;
 }
