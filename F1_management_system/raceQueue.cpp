@@ -101,7 +101,7 @@ void RaceQueue:: showQueue(){
         RaceNode* temp = listhead;
         int count = 1;
         while (temp != NULL){
-            cout << "Race # " << count << " :" << endl;
+            cout << "\nRace # " << count << " :" << endl;
             cout << "Event Name: " << temp->data.getName() << endl;
             cout << "Event Date: " << temp->data.getDate() << endl;
             cout << "Event Time: " << temp->data.getTime() << endl;

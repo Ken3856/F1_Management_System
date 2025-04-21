@@ -13,6 +13,6 @@ int Engine::getHorsepower() const{
 }
 
 void Engine::showEngineInfo() const{
-    cout << "Engine Type: " << type
-         << ", Horsepower: " << horsepower << endl;
+    cout << "Engine Type: " << type << endl;
+    cout << "Horsepower: " << horsepower << endl;
 }

@@ -121,7 +121,7 @@ void raceManagement(){
         cout << " 1. Schedule New Race\n";
         cout << " 2. View Scheduled Races \n";
         cout << " 3. Enter Race Results\n";
-        cout << " 4. View Race Results\n";
+        cout << " 4. View All Race Results\n";
         cout << " 5. Delete Past Race \n";
         cout << " 6. Return to Main Menu\n";
         cout << " Enter an option: ";
@@ -151,12 +151,18 @@ void raceManagement(){
                 raceManager.enterRaceResults(allDrivers);
                 pauseScreen(); // Waits for the user to hit Enter
                 break;
-            case 4:
+            case 4:{
                 clearScreenDisplayBanner(); // redraw banner 
-                cout << "==== View Race Results ====\n";
-                raceManager.viewRaceResults();
+                cout << "==== View All Race Results ====\n";
+                RaceEvent* r = raceManager.getLastRace();
+                if(r){
+                    r->displayRaceDetails();
+                } else{
+                    cout << "No race has been scheduled yet." << endl;
+                }
                 pauseScreen(); // Waits for the user to hit Enter
                 break;
+            }
             case 5:
                 clearScreenDisplayBanner(); // redraw banner 
                 cout << "==== Delete Past Race ====\n";
@@ -231,19 +237,19 @@ void vehicleManagement(){
         switch(choice){
             case 1:
                 clearScreenDisplayBanner();
-                cout << "==== Add New Vehicle (Placeholder) ====\n";
+                cout << "==== Add New Vehicle ====\n";
                 addVehicle();
                 pauseScreen();
                 break;
             case 2:
                 clearScreenDisplayBanner();
-                cout << "==== View All Vehicles (Placeholder) ====\n";
+                cout << "==== View All Vehicles ====\n";
                 viewAllVehicles();
                 pauseScreen();
                 break;
             case 3:
                 clearScreenDisplayBanner();
-                cout << "==== Assign Vehicle to Driver (Placeholder) ====\n";
+                cout << "==== Assign Vehicle to Driver ====\n";
                 assignVehicleToDriver();
                 pauseScreen();
                 break;
@@ -262,10 +268,11 @@ void performanceStats(){
     do {
         clearScreenDisplayBanner();
         cout << "==== Performance Statistics Menu ====\n\n";
-        cout << " 1. Average Lap Time\n";
-        cout << " 2. Combine Two Drives Times \n";
-        cout << " 3. View Registration counts\n";
-        cout << " 4. Return to Main Menu\n";
+        cout << " 1. Average Lap Time" << endl;
+        cout << " 2. Combine Two Drives Times" << endl;
+        cout << " 3. View Podium " << endl;
+        cout << " 4. View Registration counts" << endl;
+        cout << " 5. Return to Main Menu" << endl;
         cin >> choice;
         if (cin.fail()) {
             handleInvalidInputChar();
@@ -332,6 +339,12 @@ void performanceStats(){
             }
             case 3:
                 clearScreenDisplayBanner();
+                cout << "==== View podium ====" << endl;
+                raceManager.viewRaceResults();
+                pauseScreen();
+                break;
+            case 4:
+                clearScreenDisplayBanner();
                 cout << "==== View Registration counts ====\n";
                 cout << "Drivers registered:  " << Driver::getDriverCount()   << "\n"
                      << "Engineers registered: " << Engineer::getEngineerCount()   << "\n"
@@ -339,14 +352,14 @@ void performanceStats(){
                      << "Cars built:           " << Car::getCarCount() << "\n";
                 pauseScreen();
                 break;
-            case 4:
+            case 5:
                 clearScreenDisplayBanner();
                 cout << "Returning to Main Menu...\n";
                 break;
             default:
                 cout << "Invalid option.\n";
         }
-    } while(choice != 4);
+    } while(choice != 5);
 }
 
 // ******** Main menu ****************************
