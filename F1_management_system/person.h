@@ -1,3 +1,5 @@
+// Responsible: Eamon Mahrooq
+// Driver is a Person
 #ifndef PERSON_H
 #define PERSON_H
 
@@ -8,7 +10,7 @@ using namespace std;
 
 // ************ Abstract Base Class: Person ************
 class Person{
-    protected:
+    protected: // Attributes only accessible by abstract class Person and derived classes (like Driver)
         string name;
         int age;
         Date dateOfBirth;  // Composition: a Person "has-a" Date of birth
@@ -21,7 +23,7 @@ class Person{
         virtual ~Person();
     
         // Getters
-        string getName() const;
+        string getName() const; // Const ensures that the function won't modify the object, in this case it's just collecting information from the object
         int getAge() const;
         string getDateOfBirth() const;
 
