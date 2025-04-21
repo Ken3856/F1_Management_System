@@ -1,3 +1,4 @@
+// Responsible: Eamon Mahrooq
 // vehicle.h
 #ifndef VEHICLE_H
 #define VEHICLE_H
@@ -15,7 +16,7 @@ protected:
     string color;
     int maxSpeed;
     static int vehicleCount;
-    Driver* assignedDriver = nullptr; // Binary Association
+    Driver* assignedDriver = nullptr; // Binary Association, responsible: Adam
 
 public:
     Vehicle(const string& make, const string& model, const string& color, int maxSpeed);
@@ -24,12 +25,12 @@ public:
     // pure‐virtual interface
     virtual string getMake()  const = 0;
     virtual string getModel() const = 0;
-    virtual string getEngine() const = 0; // Polymorphic behaviour: pure virtual functions where the implementation will be in the derived class(es)
+    virtual string getEngine() const = 0; // Polymorphic behaviour: pure virtual functions where the implementation will be in the derived classes
     virtual string getType()   const = 0;
     virtual void showCarInfo() const = 0;
 
     void assignDriver(Driver* d);
-    Driver* getAssignedDriver() const;
+    Driver* getAssignedDriver() const; // Responsible: Adam
 
     string getColor() const;
     int getMaxSpeed() const;
