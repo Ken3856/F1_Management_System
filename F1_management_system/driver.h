@@ -16,7 +16,7 @@ class Driver : public Person {
         string driverId;
         string team;
         int driverNumber;
-        Vehicle* assignedVehicle = nullptr;
+        Vehicle* assignedVehicle = nullptr; // Responsible: Adam Bance
 
         static int driverCount;
     
@@ -25,7 +25,7 @@ class Driver : public Person {
                     // Inherited from person
         ~Driver();
 
-        void setAssignedVehicle(Vehicle* v);
+        void setAssignedVehicle(Vehicle* v); // Responsible: Adam Bance
 
         // Getters
         string getDriverId() const;
@@ -33,7 +33,7 @@ class Driver : public Person {
         string getTeam() const;
         static int getDriverCount();
 
-        Vehicle* getAssignedVehicle() const;
+        Vehicle* getAssignedVehicle() const; // Responsible: Adam Bance
 
         void displayInfo() const override;
 
