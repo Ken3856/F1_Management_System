@@ -1,3 +1,4 @@
+// Responsible: Eamon
 // car.h
 #ifndef CAR_H
 #define CAR_H
@@ -20,8 +21,8 @@ class Car : public Vehicle{
     
     public:
         Car(const string& mk, const string& mdl, const string& col, int maxSp, const string& engTyp,  int hp);
-    
-        // Vehicle overides
+                                                                                 // Constructor has parameters of Engine
+        // Vehicle overrides
         string getMake() const override;
         string getModel() const override;
         string getEngine() const override;
