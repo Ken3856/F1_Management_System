@@ -445,8 +445,7 @@ class Team {
     
 // ******************** Race & Results *********************************
 class RaceResult;
-
-
+//Responsible:Adam
 // ************ RaceResult (Association Class) ************
 class RaceResult {
     private:
@@ -476,6 +475,7 @@ class RaceResult {
 
 
 // ************ Race Event Class ************
+//Responsible:Adam
 class RaceEvent {
     private:
         string eventName;
@@ -728,6 +728,8 @@ void RaceQueue:: deleteRaceNode(){
 
     
 // ************ RaceManager ************
+
+//Responsible:Adam
 class RaceManager{
     private:
         vector<RaceEvent*> races;
