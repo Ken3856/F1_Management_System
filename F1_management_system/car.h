@@ -17,7 +17,7 @@ class Car : public Vehicle{
     private:
         Engine engine;
         int horsepower;
-        static int carCount; // Static member carCount
+        static int carCount; // Static member carCount, responsible: Adam Bance
     
     public:
         Car(const string& mk, const string& mdl, const string& col, int maxSp, const string& engTyp,  int hp);
@@ -30,6 +30,7 @@ class Car : public Vehicle{
         void showCarInfo() const override;
 
         // Get the car count
+        // Responsible: Adam Bance
         static int getCarCount();
 };
 
