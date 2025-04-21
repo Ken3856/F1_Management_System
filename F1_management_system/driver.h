@@ -1,3 +1,4 @@
+// Responsible: Eamon
 // driver.h
 #ifndef DRIVER_H
 #define DRIVER_H
@@ -8,6 +9,7 @@
 
 using namespace std;
 
+//Driver class inherits from Person
 class Driver : public Person {
 
     private:
@@ -20,15 +22,18 @@ class Driver : public Person {
     
     public:
         Driver(const string& name, int age, const Date& dob, string driverId, const string& team, int driverNumber);
+                    // Inherited from person
         ~Driver();
 
         void setAssignedVehicle(Vehicle* v);
 
+        // Getters
         string getDriverId() const;
         int getDriverNumber() const;
         string getTeam() const;
-        Vehicle* getAssignedVehicle() const;
         static int getDriverCount();
+
+        Vehicle* getAssignedVehicle() const;
 
         void displayInfo() const override;
 
