@@ -494,7 +494,7 @@ void assignVehicleToDriver(){
 void registerDriver(){
     cout << "Enter Driver name: ";
     string driverName;
-    getline(cin, driverName);
+    getline(cin, driverName); // Reads entire line including spaces, cin to take the manager's input
 
     cout << "Enter Driver age: ";
     int age;
@@ -519,7 +519,7 @@ void registerDriver(){
     string driverID;
     getline(cin, driverID);
 
-    cout << "Enter Team Name (e.g. Red, Green, Blue): ";
+    cout << "Enter Team Name (e.g. Haas, Ferrari, Fast 2 Furious): ";
     string teamName;
     getline(cin,teamName);
    
@@ -607,6 +607,7 @@ void registerEngineer(){
 }
 
 // ************ Searching - Qualified Assoiciation************
+// Kenneth Johnson
 void searchDriverByTeamAndRole(){
     cout << "Enter team name (e.g., Red, Green, Blue): ";
     string teamName;
