@@ -10,8 +10,8 @@ class RaceNode{
         RaceEvent data; // RaceEvent type of data
         RaceNode* next;// a pointer point to the next node
 
-        RaceNode(RaceEvent e);
-        RaceNode();
+        RaceNode(RaceEvent e);//when input the data, constructor
+        RaceNode();//default value.
 };
 
 class RaceQueue {
@@ -20,8 +20,8 @@ class RaceQueue {
         RaceNode* listtail;
     
     public:
-        RaceQueue();//
-        RaceQueue(const RaceQueue& q);
+        RaceQueue();//default value
+        RaceQueue(const RaceQueue& q);//copy function
         ~RaceQueue();//destruct function
 
         void addRaceToQueue(const RaceEvent& e);//add function
