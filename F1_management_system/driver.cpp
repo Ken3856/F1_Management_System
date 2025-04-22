@@ -1,12 +1,16 @@
 // driver.cpp
+// Responsible: Eamon Mahrooq
 #include "driver.h"
 #include <iostream>
 
-int Driver::driverCount = 0;
+// Static Driver object count
+int Driver::driverCount = 0; // Responsible: Adam Bance
 
+// Constructor
 Driver::Driver(const string& name, int age, const Date& dob, string dID, const string& t, int dnum)
                 : Person(name, age, dob), driverId(dID), team(t), driverNumber(dnum), assignedVehicle(nullptr){
-                    ++driverCount;
+                    ++driverCount;                                                    // Responsible: Adam Bance
+                  // Driver inherits from Person
                 }
 
 Driver::~Driver(){
@@ -14,6 +18,7 @@ Driver::~Driver(){
     cout << "Destroying Driver object\n";
 }
 
+// Getters
 string Driver::getDriverId() const{
     return driverId;
 }
@@ -42,6 +47,7 @@ void Driver::displayInfo() const{
          << "Team: "          << team << "\n"
          << "Driver Number: " << driverNumber << endl;
 
+    // // Responsible: Adam Bance
     if (assignedVehicle){
         cout << "Assigned Vehicle: " << assignedVehicle->getMake() << " " << assignedVehicle->getModel() << endl;
     } else{
@@ -49,6 +55,7 @@ void Driver::displayInfo() const{
     }
 }
 
+// Responsible: Adam Bance
 int Driver::getDriverCount(){
     return driverCount;
 }
