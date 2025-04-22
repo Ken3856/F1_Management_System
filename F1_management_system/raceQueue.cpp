@@ -20,7 +20,7 @@ RaceQueue::~RaceQueue(){
     }
 }
 
-void RaceQueue::addRaceToQueue(const RaceEvent& e){
+void RaceQueue::addRaceToQueue(const RaceEvent& e){// Dependency by Adam//
     RaceNode* temp = new RaceNode(e);
 
     if (temp == NULL){ //check the overflow
