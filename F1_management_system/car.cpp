@@ -1,4 +1,5 @@
 // car.cpp
+// Responsible: Eamon Mahrooq
 #include "car.h"
 #include "driver.h"
 #include <iostream>
@@ -8,13 +9,17 @@
 using namespace std;
 
 // Initialize static member
+// Responsible: Adam Bance
 int Car::carCount = 0;
 
+// Constructor
 Car::Car(const string& make, const string& model,const string& color, int maxSpeed, const string& engineType, int hp) 
         : Vehicle(make, model, color, maxSpeed), engine(engineType, hp), horsepower(hp){
+        // Car inherits from Vehicle
             ++carCount;
         }
 
+// Getters
 string Car::getMake() const{
     return make;
 }
@@ -24,7 +29,7 @@ string Car::getModel() const{
 }
 
 string Car::getEngine() const{
-    return engine.getType() + " with " + to_string(engine.getHorsepower()) + " HP"; // Convert horsepower to string to concatenate with the strings
+    return engine.getType() + " with " + to_string(engine.getHorsepower()) + " HP"; // Convert horsepower to string to concatenate with the other strings
 }
 
 string Car::getType() const{
@@ -40,6 +45,7 @@ void Car::showCarInfo() const{
          << "Max Speed: "   << maxSpeed << " km/h" << endl;;
 
     // For driver association
+    // Responsible: Adam Bance
     if (assignedDriver){
         cout << "Assigned to Driver:  " << assignedDriver->getName() << endl;;
     } else{
@@ -47,6 +53,7 @@ void Car::showCarInfo() const{
     }
 }
 
+// Responsible: Adam Bance
 int Car::getCarCount(){
     return carCount;
 }
