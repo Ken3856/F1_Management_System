@@ -1,3 +1,4 @@
+// Responsible: Eamon Mahrooq
 // date.h
 #ifndef DATE_H
 #define DATE_H
@@ -7,7 +8,7 @@
 
 using namespace std;
 
-// ************ Date Class (Composition) ************
+// ************ Date Class (Composition (Person has a date of birth) ************
 class Date{
     private:
         int day, month, year;
@@ -19,6 +20,7 @@ class Date{
         string getDateString() const;
     };
 
+    // Responsible: Eamon Mahrooq
     // Stream operators
     ostream& operator<<(ostream& os, const Date& d);
     istream& operator>>(istream& is, Date& d);
