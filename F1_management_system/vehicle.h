@@ -1,4 +1,4 @@
-// Responsible: Eamon Mahrooq
+// Responsible: (your name)
 // vehicle.h
 #ifndef VEHICLE_H
 #define VEHICLE_H
@@ -9,6 +9,7 @@ using namespace std;
 class Driver;  // forward
 
 // Abstract Base Class for inheritance and polymorphism
+// Responsible: Eamon Mahrooq
 class Vehicle {
 protected:
     string make;
