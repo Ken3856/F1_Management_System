@@ -1,4 +1,4 @@
-// Responsible: Eamon Mahrooq
+// Responsible: (your name)
 // vehicle.cpp
 #include "vehicle.h"
 #include "driver.h"    // for Driver::setAssignedVehicle()
