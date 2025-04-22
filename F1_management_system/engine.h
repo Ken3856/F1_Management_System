@@ -15,6 +15,7 @@ class Engine{
         int horsepower;
     
     public:
+// Constructor and destructor prototype
         Engine(const string& t, int hp);
         ~Engine();
     
