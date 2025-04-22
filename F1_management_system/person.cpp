@@ -1,8 +1,10 @@
+// Responsible: Eamon Mahrooq
 #include "person.h"
 #include <iostream>
 
 using namespace std;
 
+// Person has a date of birth (Date) (composition)
 Person::Person(const string& n, int a, const Date& dob) : name(n), age(a), dateOfBirth(dob) {}
 
 Person::~Person(){
@@ -18,5 +20,5 @@ int Person::getAge() const{
 }
 
 string Person::getDateOfBirth() const{
-    return dateOfBirth.getDateString();
+    return dateOfBirth.getDateString(); // Return date of birth as a string
 }
