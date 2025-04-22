@@ -1,4 +1,4 @@
-#ifndef RACEQUEUE_H
+#ifndef RACEQUEUE_H    // by Yifan Xiang
 #define RACEQUEUE_H
 
 #include <string>
@@ -7,8 +7,8 @@
 class RaceNode{
     public:
         // explicit RaceNode(const RaceEvent& e);
-        RaceEvent data;
-        RaceNode* next;
+        RaceEvent data; // RaceEvent type of data
+        RaceNode* next;// a pointer point to the next node
 
         RaceNode(RaceEvent e);
         RaceNode();
@@ -20,14 +20,14 @@ class RaceQueue {
         RaceNode* listtail;
     
     public:
-        RaceQueue();
+        RaceQueue();//
         RaceQueue(const RaceQueue& q);
-        ~RaceQueue();
+        ~RaceQueue();//destruct function
 
-        void addRaceToQueue(const RaceEvent& e);
-        RaceEvent pop();
-        void showQueue();
-        void deleteRaceNode();
+        void addRaceToQueue(const RaceEvent& e);//add function
+        RaceEvent pop();//pop function
+        void showQueue();// show nodes in queue
+        void deleteRaceNode();// delete function
 
 
 };
