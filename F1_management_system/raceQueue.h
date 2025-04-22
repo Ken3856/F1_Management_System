@@ -22,7 +22,8 @@ class RaceQueue {
     public:
         RaceQueue();//default value
         RaceQueue(const RaceQueue& q);//copy function
-        ~RaceQueue();//destruct function
+        ~RaceQueue();//destruct function，It is automatically called when an object ends its life cycle
+                     //(for example, it is deleted) to release resources and clear memory.
 
         void addRaceToQueue(const RaceEvent& e);//add function
         RaceEvent pop();//pop function
