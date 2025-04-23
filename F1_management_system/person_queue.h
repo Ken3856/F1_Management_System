@@ -12,11 +12,12 @@ class PersonQueue{
     // Protected access specifier, accessible inside the class and derived classes.
     protected:
         class Node{ // Nested Node class, as Node only exists to support PersonQueue.
-            Person* person; // Pointe to a person object.
-            Node* next; // Pointer to the next node in the queue;
-
-            // Constructor with initialisation list for person pointer and setting next to nullptr.
-            Node(Person* p) : person(p), next(nullptr) {}
+            protected:
+                Person* person; // Pointe to a person object.
+                Node* next; // Pointer to the next node in the queue;
+    
+                // Constructor with initialisation list for person pointer and setting next to nullptr.
+                Node(Person* p) : person(p), next(nullptr) {}
         };
     
         Node* front // Pointer to the front node of the queue.
