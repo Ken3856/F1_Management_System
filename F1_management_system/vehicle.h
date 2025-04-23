@@ -1,4 +1,4 @@
-// Responsible for abstract class: Yifan
+// Responsible for abstract class: Yifan Xiang
 // vehicle.h
 #ifndef VEHICLE_H
 #define VEHICLE_H
