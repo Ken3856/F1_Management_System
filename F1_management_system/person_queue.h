@@ -25,7 +25,7 @@ class PersonQueue{
                 friend class EngineerQueue; // Allow EngineerQueue to access Node.    
         };
     
-        Node* front // Pointer to the front node of the queue.
+        Node* front; // Pointer to the front node of the queue.
         Node* rear; // Pointer to the rear node of the queue.
     
     // Public access specifier.
