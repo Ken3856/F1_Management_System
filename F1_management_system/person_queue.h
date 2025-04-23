@@ -18,6 +18,11 @@ class PersonQueue{
     
                 // Constructor with initialisation list for person pointer and setting next to nullptr.
                 Node(Person* p) : person(p), next(nullptr) {}
+
+                // For encapsulation.
+                friend class PersonQueue; // Allow PersonQueue to use Node.
+                friend class DriverQueue; // Allow DriverQueue to access Node.
+                friend class EngineerQueue; // Allow EngineerQueue to access Node.    
         };
     
         Node* front // Pointer to the front node of the queue.
