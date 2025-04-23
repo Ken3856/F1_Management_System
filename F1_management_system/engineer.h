@@ -1,4 +1,5 @@
 // engineer.h
+// Responsible: Eamon Mahrooq (inheritance from Person)
 #ifndef ENGINEER_H
 #define ENGINEER_H
 
@@ -7,6 +8,7 @@
 
 using namespace std;
 
+// Engineer inherits from Person
 class Engineer : public Person {
 private:
     string engID;
@@ -24,7 +26,7 @@ public:
     
     static int getEngineerCount();
 
-    // Display
+    // Override display function
     void displayInfo() const override;
 };
 
