@@ -20,7 +20,7 @@ class Date{
         string getDateString() const;
     };
 
-    // Responsible: Yifan
+    // Responsible: Yifan Xiang
     // Stream operators
     ostream& operator<<(ostream& os, const Date& d);
     istream& operator>>(istream& is, Date& d);
