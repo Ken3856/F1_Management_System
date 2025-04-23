@@ -1,5 +1,4 @@
-// Responsible: Eamon Mahrooq
-// Responsible: Kenneth Johnson (Input/output operator overloading)
+// Responsible: Eamon Mahrooq (inheritance)
 #include "date.h"
 
 // Default constructor with member initialiser list.
@@ -13,6 +12,7 @@ string Date::getDateString() const { // Const as it doesnt modify any member var
     return to_string(day) + "-" + to_string(month) + "-" + to_string(year); // to_string converts integer to string form "-" to seperate day and month. '+' combines each into a larger string.
 }
 
+// Responsible: Yifan Xiang (Input/output operator overloading
 // Non-member overload of output stream operator, to easly print Date objects.
 ostream& operator<<(ostream& os, const Date& d){ // ostream& os, so the original stream state is not modified. const Date& d, to only read a reference to the Date object being printed. 
     os << d.getDateString(); // Insert the date string into output stream.
