@@ -1,4 +1,4 @@
-// Responsible: (your name)
+// Responsible: Yifan Xiang (creating the abstract base class)
 // vehicle.cpp
 #include "vehicle.h"
 #include "driver.h"    // for Driver::setAssignedVehicle()
