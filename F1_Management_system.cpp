@@ -333,10 +333,16 @@ class Vehicle {
 // ************ Abstract Base Class for Person Queues + Derived Queues ************
 class PersonQueue{
     protected:
-        struct Node {
-            Person* person;
-            Node* next;
-            Node(Person* p) : person(p), next(nullptr) {}
+        class Node {
+            protected:
+                Person* person;
+                Node* next;
+                Node(Person* p) : person(p), next(nullptr) {}
+    
+                // For encapsulation.
+                friend class PersonQueue; // Allow PersonQueue to use Node.
+                friend class DriverQueue; // Allow DriverQueue to access Node.
+                friend class EngineerQueue; // Allow EngineerQueue to access Node.
         };
     
         Node* front;
