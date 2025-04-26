@@ -11,7 +11,7 @@ DriverQueue::~DriverQueue(){
 
 // Pushes a new Person* onto the queue
 void DriverQueue::push(Person* p){
-    Node* newNode = new Node(p); // Dynamically allocates memory for a new node to hold the Person pointer.
+    PersonNode* newNode = new PersonNode(p); // Dynamically allocates memory for a new node to hold the Person pointer.
     if (!rear){ // If the queue is empty,
         front = rear = newNode; // set the front and rear to point to the first node.
     } else{ // Otherwise, if the queue has one node,
@@ -25,7 +25,7 @@ void DriverQueue::pop(){
     if (isEmpty()){ // If queue is empty,
          return; // there is nothing to remove, so return.
     }
-    Node* temp = front; // Stores the front node in a temp pointer. 
+    PersonNode* temp = front; // Stores the front node in a temp pointer. 
     front = front->next; // Moves the front pointer to the next node.
     delete temp->person; // Deallocates the person object stored in the node.
     delete temp; // Deletes and deallocates the node itself.
@@ -36,7 +36,7 @@ void DriverQueue::pop(){
 
 // Display function for displaying information of all Persons in the queue.
 void DriverQueue::display() const{
-    Node* current = front; // Statts at the front of the queue.
+    PersonNode* current = front; // Statts at the front of the queue.
     while (current){ // Traverse through all nodes in the queue.
         current->person->displayInfo(); // Display each Person's information.
         cout << endl; // print a newline for a space after displaying info.
