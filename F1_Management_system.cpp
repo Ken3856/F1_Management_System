@@ -331,26 +331,25 @@ class Vehicle {
 
 // ******************** Queues & Team *********************
 // ************ Abstract Base Class for Person Queues + Derived Queues ************
+
+        class PersonNode {
+            public:
+                Person* person;
+                PersonNode* next;
+                PersonNode(Person* p) : person(p), next(nullptr) {}
+        };
+
+
+
 class PersonQueue{
     protected:
-        class Node {
-            protected:
-                Person* person;
-                Node* next;
-                Node(Person* p) : person(p), next(nullptr) {}
-    
-                // For encapsulation.
-                friend class PersonQueue; // Allow PersonQueue to use Node.
-                friend class DriverQueue; // Allow DriverQueue to access Node.
-                friend class EngineerQueue; // Allow EngineerQueue to access Node.
-        };
-    
-        Node* front;
-        Node* rear;
+        PersonNode* front;
+        PersonNode* rear;
     
     public:
         PersonQueue() : front(nullptr), rear(nullptr) {}
         virtual ~PersonQueue() {}  // Let derived classes clean up
+
         virtual void push(Person* p) = 0;
         virtual void pop() = 0;
         virtual void display() const = 0;
@@ -363,24 +362,24 @@ class DriverQueue : public PersonQueue{
             while(!isEmpty()){ pop(); }
         }
         void push(Person* p) override {
-            Node* newNode = new Node(p);
+            PersonNode* newNode = new PersonNode(p);
             if(!rear) { front = rear = newNode; }
             else { rear->next = newNode; rear = newNode; }
         }
         void pop() override {
             if(isEmpty()) return;
-            Node* temp = front;
+            PersonNode* temp = front;
             front = front->next;
             delete temp->person;
             delete temp;
             if(!front) rear = nullptr;
         }
         void display() const override {
-            Node* curr = front;
-            while(curr) {
-                curr->person->displayInfo();
+            PersonNode* current = front;
+            while(current) {
+                current->person->displayInfo();
                 cout << endl;
-                curr = curr->next;
+                current = current->next;
             }
         }
     };
@@ -391,24 +390,24 @@ class EngineerQueue : public PersonQueue{
             while(!isEmpty()){ pop(); }
         }
         void push(Person* p) override {
-            Node* newNode = new Node(p);
+            PerosnNode* newNode = new PersonNode(p);
             if(!rear) { front = rear = newNode; }
             else { rear->next = newNode; rear = newNode; }
         }
         void pop() override {
             if(isEmpty()) return;
-            Node* temp = front;
+            PersonNode* temp = front;
             front = front->next;
             delete temp->person;
             delete temp;
             if(!front) rear = nullptr;
         }
         void display() const override {
-            Node* curr = front;
-            while(curr) {
-                curr->person->displayInfo();
+            Node* current = front;
+            while(current) {
+                current->person->displayInfo();
                 cout << endl;
-                curr = curr->next;
+                current = current->next;
             }
         }
     };
