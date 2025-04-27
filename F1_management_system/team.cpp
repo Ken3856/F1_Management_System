@@ -26,7 +26,7 @@ Driver* Team::getDriverByRole(const string& role) const{
 
 // Assigns an engineer to a specific role within the team. String represents the engineer role.
 // "e" is a pointer to the engineer object to be assigned. 
-void Team::assignEngineer(const string& role, Engineer* e){
+void Team::assignRoleToEngineer(const string& role, Engineer* e){
     roleToEngineerMap[role] = e; // Inserts the role to engineer map enabling qualified association.
 }
 
