@@ -601,7 +601,7 @@ void registerEngineer(){
     cout << "Enter the Engineer role (e.g Senior Engineer, Junior Engineer, Technician): ";
     string role;
     getline(cin, role);
-    teams[teamName]->assignEngineer(role,e);
+    teams[teamName]->assignRoleToEngineer(role,e);
 
     cout << "Engineer registered and added to team successfully!\n";
 }
