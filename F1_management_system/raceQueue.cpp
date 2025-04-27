@@ -69,11 +69,9 @@ RaceQueue::RaceQueue(const RaceQueue& q){
     }
     else{
 
-        // (!!!**** This creates a memory leak! :) fixed it ***)
-        // temp = new RaceNode;   //create a new nede, give it to temp 
-        // listhead = temp;    //let the new node be the new listhead of copy queue
-
-        RaceNode* temp = listhead;
+        
+        temp = new RaceNode;   //create a new nede, give it to temp 
+        listhead = temp;    //let the new node be the new listhead of copy queue
 
         while (hold != NULL)  //if the hold has something, starts to traverse the source queue
         {
