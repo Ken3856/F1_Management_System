@@ -35,7 +35,7 @@ class Team{
         Driver* getDriverByRole(const string& role) const; // Looks up and returns the Driver* stored under the key (role) in the teams driver role map.
     
         // Qualified association for Engineers. Qualify an Engineer by a role.
-        void assignEngineer(const string& role, Engineer* e); // Maps the Engineer pointer 'e' into the teams engineer role map under the role (key).
+        void assignRoleToEngineer(const string& role, Engineer* e); // Maps the Engineer pointer 'e' into the teams engineer role map under the role (key).
         Engineer* getEngineerByRole(const string& role) const; // Looks up and returns the Engineer* stored under the key (role) in the teams engineer role map.
     
         // Getter
