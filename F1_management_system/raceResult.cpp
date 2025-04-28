@@ -1,5 +1,5 @@
 // raceResult.cpp
-//resposible:Adam Bance
+
 #include "raceResult.h"
 #include "driver.h"
 #include "raceEvent.h"
